@@ -259,7 +259,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from "vue";
+import { defineComponent } from "vue";
+import { mapState } from "pinia";
 import { useSettingsStore } from "../../../store/settings";
 
 export default defineComponent({
@@ -269,25 +270,26 @@ export default defineComponent({
     invoice: { type: Object, required: true },
     profile: { type: Object, required: true },
   },
-  setup(props) {
-    const settingsStore = useSettingsStore();
-    const formatCurrency = (val: number) => {
-      const curr = props.invoice?.currency || settingsStore.app.currency;
-      return `${val} ${curr}`;
-    };
-
-    const document = computed(() => props.invoice);
-    const sender = computed(() => props.profile);
-    const customer = computed(() => props.invoice.customer);
-    const bank = computed(() => props.invoice.bank || props.profile.bank || {});
-
-    return {
-      document,
-      sender,
-      customer,
-      bank,
-      formatCurrency,
-    };
+  computed: {
+    ...mapState(useSettingsStore, ['app']),
+    document() {
+      return this.invoice;
+    },
+    sender() {
+      return this.profile;
+    },
+    customer() {
+      return this.invoice?.customer || {};
+    },
+    bank() {
+      return this.invoice?.bank || this.profile?.bank || {};
+    }
   },
+  methods: {
+    formatCurrency(val: number) {
+      const curr = this.invoice?.currency || this.app?.currency || 'USD';
+      return `${val} ${curr}`;
+    }
+  }
 });
 </script>
