@@ -37,6 +37,10 @@
  <Label for="country">Country</Label>
  <Input id="country" v-model="form.country" placeholder="United Arab Emirates" />
  </div>
+ <div class="grid gap-2">
+ <Label for="projectName">Project Name</Label>
+ <Input id="projectName" v-model="form.projectName" placeholder="Website Redesign" />
+ </div>
  </div>
  <DialogFooter>
  <Button @click="saveCustomer">Save</Button>
@@ -107,7 +111,7 @@ export default defineComponent({
  const editingId = ref<string | null>(null)
  
  const initialForm = {
- name: '', email: '', phone: '', company: '', address: '', country: '', taxId: ''
+ name: '', email: '', phone: '', company: '', address: '', country: '', taxId: '', projectName: ''
  }
  const form = reactive({ ...initialForm })
 

@@ -9,6 +9,7 @@ export interface Customer {
   address: string
   country: string
   taxId: string
+  projectName?: string
 }
 
 export const useCustomerStore = defineStore('customer', {

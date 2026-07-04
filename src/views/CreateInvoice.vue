@@ -487,6 +487,7 @@ export default defineComponent({
  const cust = customerStore.getCustomerById(id);
  if (cust) {
  form.customer = { ...cust };
+ if (cust.projectName) form.projectName = cust.projectName;
  }
  }
  
