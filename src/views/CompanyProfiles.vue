@@ -1,8 +1,11 @@
 <template>
   <div class="space-y-6">
-    <div class="flex items-center justify-between">
-      <h2 class="text-2xl font-bold text-foreground dark:text-primary-foreground">Company Profiles</h2>
-      <Button @click="openCreateModal">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-2xl font-bold text-foreground dark:text-primary-foreground">Company Profiles</h2>
+        <p class="text-muted-foreground md:hidden mt-1">Manage your company profiles</p>
+      </div>
+      <Button class="w-full md:w-auto" @click="openCreateModal">
         <Icon icon="lucide:plus" class="mr-2 h-4 w-4" /> Add Profile
       </Button>
     </div>
@@ -16,18 +19,18 @@
       <div
         v-for="profile in profiles"
         :key="profile.id"
-        class="flex items-center justify-between p-4 border rounded-lg bg-card dark:border-border transition-all hover:shadow-sm"
+        class="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-xl md:rounded-lg bg-card dark:border-border transition-all hover:shadow-sm gap-4 md:gap-0"
       >
         <div class="flex items-center space-x-4">
-          <div v-if="profile.logo" class="w-12 h-12 border rounded-md overflow-hidden bg-muted flex items-center justify-center hidden sm:flex">
+          <div v-if="profile.logo" class="w-12 h-12 border rounded-xl md:rounded-md overflow-hidden bg-muted flex items-center justify-center">
             <img :src="profile.logo" alt="Logo" class="max-w-full max-h-full object-contain" />
           </div>
-          <div v-else class="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-full hidden sm:block">
-            <Icon icon="lucide:building-2" class="h-6 w-6 text-orange-500" />
+          <div v-else class="bg-orange-100 dark:bg-orange-900/30 p-3 rounded-full md:bg-orange-50 md:dark:bg-orange-900/20">
+            <Icon icon="lucide:building-2" class="h-6 w-6 text-orange-600 dark:text-orange-400 md:text-orange-500" />
           </div>
           <div>
             <div class="flex items-center space-x-2">
-              <p class="font-medium text-lg">{{ profile.name || 'Unnamed Profile' }}</p>
+              <p class="font-medium text-lg text-foreground">{{ profile.name || 'Unnamed Profile' }}</p>
               <Badge v-if="activeProfileId === profile.id" class="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-100 px-2 py-0.5 text-xs border-transparent">Active</Badge>
             </div>
             <p class="text-sm text-muted-foreground">
@@ -35,20 +38,22 @@
             </p>
           </div>
         </div>
-        <div class="flex items-center space-x-6">
-          <div class="text-right hidden sm:block">
-            <p class="font-medium">{{ profile.phone || 'No Phone' }}</p>
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between md:justify-end gap-3 md:gap-0 md:space-x-6 w-full md:w-auto pt-4 md:pt-0 border-t md:border-none border-border">
+          <div class="text-left md:text-right">
+            <p class="font-medium text-foreground">{{ profile.phone || 'No Phone' }}</p>
           </div>
-          <div class="flex items-center space-x-2">
-            <Button variant="outline" size="sm" @click="handleSetActive(profile.id)" v-if="activeProfileId !== profile.id" class="hidden md:inline-flex">
+          <div class="flex items-center justify-between w-full md:w-auto">
+            <Button variant="outline" size="sm" @click="handleSetActive(profile.id)" v-if="activeProfileId !== profile.id" class="w-full md:w-auto md:inline-flex mr-2 md:mr-0">
               Set Active
             </Button>
-            <Button variant="ghost" size="icon" @click="editProfile(profile)">
-              <Icon icon="lucide:edit" class="h-5 w-5 text-muted-foreground" />
-            </Button>
-            <Button variant="ghost" size="icon" class="text-destructive hover:text-destructive/90 hover:bg-destructive/10" @click="confirmDelete(profile.id)">
-              <Icon icon="lucide:trash" class="h-5 w-5" />
-            </Button>
+            <div class="flex items-center space-x-2 shrink-0">
+              <Button variant="ghost" size="icon" @click="editProfile(profile)">
+                <Icon icon="lucide:edit" class="h-5 w-5 text-muted-foreground" />
+              </Button>
+              <Button variant="ghost" size="icon" class="text-destructive hover:text-destructive/90 hover:bg-destructive/10" @click="confirmDelete(profile.id)">
+                <Icon icon="lucide:trash" class="h-5 w-5" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>

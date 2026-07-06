@@ -2,8 +2,9 @@
  <div class="flex h-screen bg-muted dark:bg-background text-foreground">
  <!-- Sidebar -->
  <aside class="w-64 bg-background dark:bg-card border-r dark:border-border hidden md:flex flex-col">
- <div class="h-16 flex items-center px-6 border-b dark:border-border">
- <h1 class="text-xl font-bold text-primary">Bilify</h1>
+ <div class="py-4 flex flex-col justify-center px-6 border-b dark:border-border">
+ <h1 class="text-xl font-bold text-primary leading-tight">Bilify</h1>
+ <p class="text-[9px] text-muted-foreground font-medium uppercase tracking-wider mt-0.5">Invoice & Quote Generator with AI</p>
  </div>
  <nav class="flex-1 py-4 space-y-1 px-3">
  <router-link
@@ -35,18 +36,33 @@
 
  <!-- Main Content -->
  <main class="flex-1 flex flex-col overflow-hidden">
- <!-- Header -->
- <header class="h-16 flex items-center justify-between px-6 bg-background dark:bg-card border-b dark:border-border md:hidden">
- <h1 class="text-xl font-bold text-primary">Bilify</h1>
- <button class="p-2 -mr-2 text-muted-foreground hover:text-foreground dark:text-muted-foreground">
- <Icon icon="lucide:menu" class="h-6 w-6" />
- </button>
- </header>
- 
- <!-- Content -->
- <div class="flex-1 overflow-auto p-6">
- <router-view />
- </div>
+  <!-- Header -->
+  <header class="h-auto py-3 flex flex-col justify-center items-start px-4 bg-background dark:bg-card border-b dark:border-border md:hidden">
+  <h1 class="text-xl font-bold text-foreground leading-tight">Bilify</h1>
+  <p class="text-[9px] text-muted-foreground font-medium uppercase tracking-wider mt-0.5">Invoice & Quote Generator with AI</p>
+  </header>
+  <!-- Content -->
+  <div class="flex-1 overflow-auto p-4 md:p-6 pb-24 md:pb-6">
+  <router-view />
+  </div>
+
+  <!-- Bottom Nav (Mobile) -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-background dark:bg-card border-t dark:border-border flex items-center justify-around px-1 z-50 overflow-x-auto no-scrollbar">
+  <router-link
+  v-for="item in bottomNavItems"
+  :key="item.name"
+  :to="item.path"
+  class="flex flex-col items-center justify-center w-[16%] min-w-[50px] h-14 rounded-xl transition-colors shrink-0"
+  :class="[
+  $route.path === item.path || ($route.path.startsWith(item.path + '/') && item.path !== '/' && item.path !== '/invoices/create?ai=true')
+  ? 'bg-[#dbd6fe] text-purple-700 dark:bg-purple-900/40 dark:text-purple-300' 
+  : 'text-muted-foreground hover:bg-muted'
+  ]"
+  >
+  <Icon :icon="item.icon" class="h-5 w-5 mb-1" />
+  <span class="text-[9px] font-medium truncate w-full text-center px-0.5">{{ item.name }}</span>
+  </router-link>
+  </nav>
  </main>
  </div>
 </template>
@@ -75,6 +91,15 @@ export default defineComponent({
  { name: 'Company Profiles', path: '/profiles', icon: 'lucide:building-2' }
  ]
 
+ const bottomNavItems = [
+  { name: 'Home', path: '/', icon: 'lucide:layout-grid' },
+  { name: 'Invoices', path: '/invoices', icon: 'lucide:file-text' },
+  { name: 'Quotes', path: '/quotations', icon: 'lucide:file-signature' },
+  { name: 'Customers', path: '/customers', icon: 'lucide:users' },
+  { name: 'Profiles', path: '/profiles', icon: 'lucide:building-2' },
+  { name: 'AI', path: '/invoices/create?ai=true', icon: 'lucide:bot' }
+  ]
+
  const logout = () => {
  authStore.logout()
  router.push('/auth/login')
@@ -85,6 +110,7 @@ export default defineComponent({
 
  return {
  navItems,
+ bottomNavItems,
  logout,
  isDark,
  toggleDark
