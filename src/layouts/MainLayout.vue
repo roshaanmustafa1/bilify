@@ -3,7 +3,7 @@
  <!-- Sidebar -->
  <aside class="w-64 bg-background dark:bg-card border-r dark:border-border hidden md:flex flex-col">
  <div class="h-16 flex items-center px-6 border-b dark:border-border">
- <h1 class="text-xl font-bold text-primary">Smart Invoice</h1>
+ <h1 class="text-xl font-bold text-primary">Bilify</h1>
  </div>
  <nav class="flex-1 py-4 space-y-1 px-3">
  <router-link
@@ -37,7 +37,7 @@
  <main class="flex-1 flex flex-col overflow-hidden">
  <!-- Header -->
  <header class="h-16 flex items-center justify-between px-6 bg-background dark:bg-card border-b dark:border-border md:hidden">
- <h1 class="text-xl font-bold text-primary">Smart Invoice</h1>
+ <h1 class="text-xl font-bold text-primary">Bilify</h1>
  <button class="p-2 -mr-2 text-muted-foreground hover:text-foreground dark:text-muted-foreground">
  <Icon icon="lucide:menu" class="h-6 w-6" />
  </button>

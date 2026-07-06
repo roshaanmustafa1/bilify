@@ -18,60 +18,64 @@
               editingId ? "Edit Customer" : "Add Customer"
             }}</DialogTitle>
           </DialogHeader>
-          <div class="grid gap-4 py-4">
-            <div class="grid gap-2">
-              <Label for="name">Name</Label>
-              <Input id="name" v-model="form.name" placeholder="John Doe" />
-            </div>
-            <div class="grid gap-2">
-              <Label for="company">Company</Label>
-              <Input
+          <div class="py-2">
+            <Card>
+              <CardContent class="grid gap-4 pt-6">
+                <div class="space-y-2">
+                  <Label for="name" class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Name</Label>
+                  <Input id="name" v-model="form.name" placeholder="John Doe" />
+                </div>
+                <div class="space-y-2">
+                  <Label for="company" class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Company</Label>
+                  <Input
                 id="company"
                 v-model="form.company"
                 placeholder="Acme Corp"
               />
-            </div>
-            <div class="grid gap-2">
-              <Label for="email">Email</Label>
-              <Input
+                </div>
+                <div class="space-y-2">
+                  <Label for="email" class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Email</Label>
+                  <Input
                 id="email"
                 type="email"
                 v-model="form.email"
                 placeholder="john@example.com"
               />
-            </div>
-            <div class="grid gap-2">
-              <Label for="phone">Phone</Label>
-              <Input
+                </div>
+                <div class="space-y-2">
+                  <Label for="phone" class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Phone</Label>
+                  <Input
                 id="phone"
                 v-model="form.phone"
                 placeholder="+1 234 567 890"
               />
-            </div>
-            <div class="grid gap-2">
-              <Label for="address">Address</Label>
-              <Textarea
+                </div>
+                <div class="space-y-2">
+                  <Label for="address" class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Address</Label>
+                  <Textarea
                 id="address"
                 v-model="form.address"
                 placeholder="123 Main St..."
               />
-            </div>
-            <div class="grid gap-2">
-              <Label for="country">Country</Label>
-              <Input
+                </div>
+                <div class="space-y-2">
+                  <Label for="country" class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Country</Label>
+                  <Input
                 id="country"
                 v-model="form.country"
                 placeholder="United Arab Emirates"
               />
-            </div>
-            <div class="grid gap-2">
-              <Label for="projectName">Project Name</Label>
-              <Input
+                </div>
+                <div class="space-y-2">
+                  <Label for="projectName" class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Project Name</Label>
+                  <Input
                 id="projectName"
                 v-model="form.projectName"
                 placeholder="Website Redesign"
               />
-            </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
           <DialogFooter>
             <Button @click="saveCustomer">Save</Button>
@@ -80,55 +84,41 @@
       </Dialog>
     </div>
 
-    <Card>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Company</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Phone</TableHead>
-            <TableHead class="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <TableRow v-if="customerStore.customers.length === 0">
-            <TableCell
-              colspan="5"
-              class="text-center h-24 text-muted-foreground"
-            >
-              No customers found. Add your first customer!
-            </TableCell>
-          </TableRow>
-          <TableRow
-            v-for="customer in customerStore.customers"
-            :key="customer.id"
-          >
-            <TableCell class="font-medium">{{ customer.name }}</TableCell>
-            <TableCell>{{ customer.company }}</TableCell>
-            <TableCell>{{ customer.email }}</TableCell>
-            <TableCell>{{ customer.phone }}</TableCell>
-            <TableCell class="text-right space-x-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                @click="editCustomer(customer)"
-              >
-                <Icon icon="lucide:edit" class="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                class="text-red-500"
-                @click="customerStore.deleteCustomer(customer.id || '')"
-              >
-                <Icon icon="lucide:trash" class="h-4 w-4" />
-              </Button>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </Card>
+  <div v-if="customerStore.customers.length === 0" class="text-center py-12 text-muted-foreground border rounded-lg bg-card">
+    No customers found. Add your first customer!
+  </div>
+  <div v-else class="space-y-4">
+    <div
+      v-for="customer in customerStore.customers"
+      :key="customer.id"
+      class="flex items-center justify-between p-4 border rounded-lg bg-card dark:border-border transition-all hover:shadow-sm"
+    >
+      <div class="flex items-center space-x-4">
+        <div class="bg-green-50 dark:bg-green-900/20 p-3 rounded-full hidden sm:block">
+          <Icon icon="lucide:users" class="h-6 w-6 text-green-500" />
+        </div>
+        <div>
+          <p class="font-medium text-lg">{{ customer.name }}</p>
+          <p class="text-sm text-muted-foreground">
+            {{ customer.company || 'No Company' }} • {{ customer.email }}
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-6">
+        <div class="text-right hidden sm:block">
+          <p class="font-medium">{{ customer.phone || 'No Phone' }}</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <Button variant="ghost" size="icon" @click="editCustomer(customer)">
+            <Icon icon="lucide:edit" class="h-5 w-5 text-muted-foreground" />
+          </Button>
+          <Button variant="ghost" size="icon" class="text-destructive hover:text-destructive/90 hover:bg-destructive/10" @click="customerStore.deleteCustomer(customer.id || '')">
+            <Icon icon="lucide:trash" class="h-5 w-5" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  </div>
   </div>
 </template>
 
@@ -140,15 +130,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
-import { Card } from "../components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../components/ui/table";
+import { Card, CardContent } from "../components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -167,12 +149,7 @@ export default defineComponent({
     Label,
     Textarea,
     Card,
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+    CardContent,
     Dialog,
     DialogContent,
     DialogHeader,

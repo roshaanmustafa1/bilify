@@ -1,5 +1,5 @@
 Project Description
-Creative Invoice is a modern, AI-powered invoice generator built with Vue 3, TypeScript, and Tailwind CSS. It enables users to create professional invoices with a creative interface powered by generative AI capabilities.
+Bilify is a modern, AI-powered invoice generator built with Vue 3, TypeScript, and Tailwind CSS. It enables users to create professional invoices with a creative interface powered by generative AI capabilities.
 
 Key Features
 Vue 3 & TypeScript: Built with modern Vue 3 composition API and full TypeScript support

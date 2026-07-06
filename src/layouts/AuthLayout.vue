@@ -3,7 +3,7 @@
  <div class="max-w-md w-full space-y-8">
  <div>
  <h2 class="mt-6 text-center text-3xl font-extrabold text-foreground dark:text-primary-foreground">
- Smart Invoice & Quotation
+  Bilify
  </h2>
  </div>
  <router-view />

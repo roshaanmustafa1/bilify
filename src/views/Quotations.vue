@@ -7,48 +7,44 @@
  </Button>
  </div>
 
- <Card>
- <Table>
- <TableHeader>
- <TableRow>
- <TableHead>Quotation Number</TableHead>
- <TableHead>Customer</TableHead>
- <TableHead>Date</TableHead>
- <TableHead>Valid Until</TableHead>
- <TableHead>Status</TableHead>
- <TableHead class="text-right">Total</TableHead>
- <TableHead class="text-right">Actions</TableHead>
- </TableRow>
- </TableHeader>
- <TableBody>
- <TableRow v-if="quotationStore.quotations.length === 0">
- <TableCell colspan="7" class="text-center h-24 text-muted-foreground">
- No quotations found. Create your first quotation!
- </TableCell>
- </TableRow>
- <TableRow v-for="quo in quotationStore.quotations" :key="quo.id">
- <TableCell class="font-medium">{{ quo.quotationNumber }}</TableCell>
- <TableCell>{{ getCustomerName(quo.customerId) }}</TableCell>
- <TableCell>{{ quo.date }}</TableCell>
- <TableCell>{{ quo.validUntil }}</TableCell>
- <TableCell>
- <Badge :variant="quo.status === 'Accepted' ? 'default' : quo.status === 'Rejected' ? 'destructive' : 'outline'">
- {{ quo.status }}
- </Badge>
- </TableCell>
- <TableCell class="text-right">{{ formatCurrency(quo.total) }}</TableCell>
- <TableCell class="text-right space-x-2">
- <Button variant="ghost" size="icon" @click="viewQuotation(quo.id || '')">
- <Icon icon="lucide:eye" class="h-4 w-4" />
- </Button>
- <Button variant="ghost" size="icon" class="text-red-500" @click="quotationStore.deleteQuotation(quo.id || '')">
- <Icon icon="lucide:trash" class="h-4 w-4" />
- </Button>
- </TableCell>
- </TableRow>
- </TableBody>
- </Table>
- </Card>
+  <div v-if="quotationStore.quotations.length === 0" class="text-center py-12 text-muted-foreground border rounded-lg bg-card">
+    No quotations found. Create your first quotation!
+  </div>
+  <div v-else class="space-y-4">
+    <div
+      v-for="quo in quotationStore.quotations"
+      :key="quo.id"
+      class="flex items-center justify-between p-4 border rounded-lg bg-card dark:border-border transition-all hover:shadow-sm"
+    >
+      <div class="flex items-center space-x-4">
+        <div class="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-full hidden sm:block">
+          <Icon icon="lucide:file-signature" class="h-6 w-6 text-purple-500" />
+        </div>
+        <div>
+          <p class="font-medium text-lg">{{ quo.quotationNumber }}</p>
+          <p class="text-sm text-muted-foreground">
+            {{ getCustomerName(quo.customerId) }} • {{ quo.date }}
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-6">
+        <div class="text-right hidden sm:block">
+          <p class="font-bold text-lg">{{ formatCurrency(quo.total) }}</p>
+          <Badge :variant="quo.status === 'Accepted' ? 'default' : quo.status === 'Rejected' ? 'destructive' : 'outline'">
+            {{ quo.status }}
+          </Badge>
+        </div>
+        <div class="flex items-center space-x-2">
+          <Button variant="ghost" size="icon" @click="viewQuotation(quo.id || '')">
+            <Icon icon="lucide:eye" class="h-5 w-5 text-muted-foreground" />
+          </Button>
+          <Button variant="ghost" size="icon" class="text-destructive hover:text-destructive/90 hover:bg-destructive/10" @click="quotationStore.deleteQuotation(quo.id || '')">
+            <Icon icon="lucide:trash" class="h-5 w-5" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  </div>
  </div>
 </template>
 
@@ -62,13 +58,11 @@ import { useSettingsStore } from '../store/settings'
 import { Button } from '../components/ui/button'
 import { Card } from '../components/ui/card'
 import { Badge } from '../components/ui/badge'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
 
 export default defineComponent({
  name: 'Quotations',
  components: {
- Icon, Button, Card, Badge,
- Table, TableBody, TableCell, TableHead, TableHeader, TableRow
+ Icon, Button, Card, Badge
  },
  setup() {
  const router = useRouter()

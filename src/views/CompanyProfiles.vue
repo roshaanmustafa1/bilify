@@ -9,47 +9,49 @@
 
     <div v-if="loading" class="text-muted-foreground">Loading profiles...</div>
 
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <Card v-for="profile in profiles" :key="profile.id" class="relative group">
-        <CardHeader class="pb-2">
-          <div class="flex justify-between items-start">
-            <div class="flex items-center space-x-3">
-              <div v-if="profile.logo" class="w-10 h-10 border rounded overflow-hidden bg-muted flex items-center justify-center">
-                <img :src="profile.logo" alt="Logo" class="max-w-full max-h-full object-contain" />
-              </div>
-              <div v-else class="w-10 h-10 border rounded bg-muted flex items-center justify-center text-muted-foreground">
-                <Icon icon="lucide:building-2" class="w-5 h-5" />
-              </div>
-              <div>
-                <CardTitle class="text-lg">{{ profile.name || 'Unnamed Profile' }}</CardTitle>
-                <p class="text-sm text-muted-foreground">{{ profile.country }}</p>
-              </div>
+    <div v-else class="space-y-4">
+      <div v-if="profiles.length === 0" class="text-center py-12 text-muted-foreground border rounded-lg bg-card">
+        No profiles found. Create your first company profile!
+      </div>
+      <div
+        v-for="profile in profiles"
+        :key="profile.id"
+        class="flex items-center justify-between p-4 border rounded-lg bg-card dark:border-border transition-all hover:shadow-sm"
+      >
+        <div class="flex items-center space-x-4">
+          <div v-if="profile.logo" class="w-12 h-12 border rounded-md overflow-hidden bg-muted flex items-center justify-center hidden sm:flex">
+            <img :src="profile.logo" alt="Logo" class="max-w-full max-h-full object-contain" />
+          </div>
+          <div v-else class="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-full hidden sm:block">
+            <Icon icon="lucide:building-2" class="h-6 w-6 text-orange-500" />
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <p class="font-medium text-lg">{{ profile.name || 'Unnamed Profile' }}</p>
+              <Badge v-if="activeProfileId === profile.id" class="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-100 px-2 py-0.5 text-xs border-transparent">Active</Badge>
             </div>
+            <p class="text-sm text-muted-foreground">
+              {{ profile.email || 'No Email' }} • {{ profile.country || 'No Country' }}
+            </p>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div class="text-sm text-muted-foreground space-y-1 mb-4">
-            <div class="flex items-center"><Icon icon="lucide:mail" class="w-3 h-3 mr-2 text-muted-foreground" /> {{ profile.email || 'N/A' }}</div>
-            <div class="flex items-center"><Icon icon="lucide:phone" class="w-3 h-3 mr-2 text-muted-foreground" /> {{ profile.phone || 'N/A' }}</div>
+        </div>
+        <div class="flex items-center space-x-6">
+          <div class="text-right hidden sm:block">
+            <p class="font-medium">{{ profile.phone || 'No Phone' }}</p>
           </div>
-          
-          <div class="flex justify-between items-center mt-4">
-            <span v-if="activeProfileId === profile.id" class="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">Active Default</span>
-            <span v-else></span>
-            <div class="space-x-2">
-              <Button variant="outline" size="sm" @click="handleSetActive(profile.id)" v-if="activeProfileId !== profile.id">
-                Set Active
-              </Button>
-              <Button variant="ghost" size="sm" @click="editProfile(profile)">
-                <Icon icon="lucide:pencil" class="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="sm" class="text-red-500 hover:text-red-700" @click="confirmDelete(profile.id)">
-                <Icon icon="lucide:trash-2" class="h-4 w-4" />
-              </Button>
-            </div>
+          <div class="flex items-center space-x-2">
+            <Button variant="outline" size="sm" @click="handleSetActive(profile.id)" v-if="activeProfileId !== profile.id" class="hidden md:inline-flex">
+              Set Active
+            </Button>
+            <Button variant="ghost" size="icon" @click="editProfile(profile)">
+              <Icon icon="lucide:edit" class="h-5 w-5 text-muted-foreground" />
+            </Button>
+            <Button variant="ghost" size="icon" class="text-destructive hover:text-destructive/90 hover:bg-destructive/10" @click="confirmDelete(profile.id)">
+              <Icon icon="lucide:trash" class="h-5 w-5" />
+            </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
 
     <!-- Edit/Create Modal -->
@@ -58,37 +60,39 @@
         <DialogHeader>
           <DialogTitle>{{ editingId ? 'Edit Profile' : 'Create Profile' }}</DialogTitle>
         </DialogHeader>
-        <div class="space-y-6 py-4">
-          <!-- Identity -->
-          <div class="space-y-4">
-            <h3 class="text-lg font-medium border-b pb-2">Brand Identity</h3>
+        <div class="space-y-6 py-4 px-1">
+          <Card>
+            <CardHeader>
+              <CardTitle>Brand Identity</CardTitle>
+            </CardHeader>
+            <CardContent>
             <div class="grid grid-cols-2 gap-4">
               <div class="space-y-2">
-                <Label>Company Name</Label>
+                <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Company Name</Label>
                 <Input v-model="form.name" />
               </div>
               <div class="space-y-2">
-                <Label>Email</Label>
+                <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Email</Label>
                 <Input type="email" v-model="form.email" />
               </div>
               <div class="space-y-2">
-                <Label>Phone</Label>
+                <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Phone</Label>
                 <Input v-model="form.phone" />
               </div>
               <div class="space-y-2">
-                <Label>Address</Label>
+                <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Address</Label>
                 <Input v-model="form.address" />
               </div>
               <div class="space-y-2">
-                <Label>Country</Label>
+                <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Country</Label>
                 <Input v-model="form.country" />
               </div>
               <div class="space-y-2">
-                <Label>Website</Label>
+                <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Website</Label>
                 <Input v-model="form.website" />
               </div>
               <div class="space-y-2">
-                <Label>Custom Logo</Label>
+                <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Custom Logo</Label>
                 <div class="flex items-center space-x-2">
                   <div v-if="form.logo" class="w-10 h-10 border rounded overflow-hidden bg-muted flex items-center justify-center">
                     <img :src="form.logo" alt="Logo" class="max-w-full max-h-full object-contain" />
@@ -100,7 +104,7 @@
                 </div>
               </div>
               <div class="space-y-2">
-                <Label>Default Currency</Label>
+                <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Default Currency</Label>
                 <Select v-model="form.currency">
                   <SelectTrigger>
                     <SelectValue placeholder="Select Currency" />
@@ -128,33 +132,37 @@
               </div>
             </div>
             <div class="space-y-2 mt-4">
-              <Label>Terms and Conditions</Label>
+              <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Terms and Conditions</Label>
               <Textarea v-model="form.terms" rows="3" placeholder="Default terms for this company..." />
             </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          <!-- Bank -->
-          <div class="space-y-4">
-            <h3 class="text-lg font-medium border-b pb-2">Bank Details</h3>
+          <Card>
+            <CardHeader>
+              <CardTitle>Bank Details</CardTitle>
+            </CardHeader>
+            <CardContent>
             <div class="grid grid-cols-2 gap-4">
               <div class="space-y-2">
-                <Label>Account Name</Label>
+                <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Account Name</Label>
                 <Input v-model="form.bank.accountName" />
               </div>
               <div class="space-y-2">
-                <Label>Account Number</Label>
+                <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Account Number</Label>
                 <Input v-model="form.bank.accountNumber" />
               </div>
               <div class="space-y-2">
-                <Label>IBAN</Label>
+                <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">IBAN</Label>
                 <Input v-model="form.bank.iban" />
               </div>
               <div class="space-y-2">
-                <Label>Bank Name</Label>
+                <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Bank Name</Label>
                 <Input v-model="form.bank.bankName" />
               </div>
             </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
         <div v-if="error" class="p-3 bg-destructive/10 text-destructive rounded-md text-sm mt-4">
@@ -179,6 +187,7 @@ import { useProfileStore } from '../store/profile';
 import { Icon } from '@iconify/vue';
 import { Button } from '../components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
 import { Label } from '../components/ui/label';
 import { Input } from '../components/ui/input';
@@ -188,7 +197,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 export default {
   name: 'CompanyProfiles',
   components: {
-    Icon, Button, Card, CardHeader, CardTitle, CardContent,
+    Icon, Button, Badge, Card, CardHeader, CardTitle, CardContent,
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
     Label, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue
   },

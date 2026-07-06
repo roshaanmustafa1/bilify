@@ -19,324 +19,332 @@
 
  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
  <!-- Form Side -->
- <Card>
- <CardHeader>
- <CardTitle>Invoice Details</CardTitle>
- </CardHeader>
- <CardContent class="space-y-6">
- <div class="grid grid-cols-2 gap-4">
- <div class="space-y-2">
- <Label>Invoice Number</Label>
- <Input v-model="form.invoiceNumber" />
- </div>
- <div class="space-y-2">
- <Label>Customer</Label>
- <Select v-model="form.customerId" @update:modelValue="applyCustomer">
- <SelectTrigger>
- <SelectValue placeholder="Select Customer" />
- </SelectTrigger>
- <SelectContent>
- <SelectItem v-for="(c, index) in customerStore.customers" :key="c.id || index" :value="c.id || ''">
- {{ c.name }} ({{ c.company }})
- </SelectItem>
- </SelectContent>
- </Select>
- </div>
- </div>
- 
- <div class="grid grid-cols-2 gap-4">
- <div class="space-y-2">
- <Label>Invoice Date</Label>
- <Input type="date" v-model="form.date" />
- </div>
- <div class="space-y-2">
- <Label>Due Date</Label>
- <Input type="date" v-model="form.dueDate" />
- </div>
- </div>
- 
- <div class="space-y-2">
- <Label>Project Name</Label>
- <Input v-model="form.projectName" placeholder="E.g. Website Redesign" />
- </div>
- 
- 
- <div v-if="form.customer" class="border-t pt-4 space-y-4">
- <Label class="text-lg font-semibold">Billed To / Customer Details</Label>
- <div class="grid grid-cols-2 gap-4">
- <div class="space-y-2">
- <Label>Client Name</Label>
- <div class="relative">
- <Input v-model="form.customer.name" class="pr-8" />
- <button v-if="form.customer.name" @click="form.customer.name = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
- <Icon icon="lucide:x" class="h-4 w-4" />
- </button>
- </div>
- </div>
- <div class="space-y-2">
- <Label>Company</Label>
- <div class="relative">
- <Input v-model="form.customer.company" class="pr-8" />
- <button v-if="form.customer.company" @click="form.customer.company = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
- <Icon icon="lucide:x" class="h-4 w-4" />
- </button>
- </div>
- </div>
- <div class="space-y-2">
- <Label>Email</Label>
- <div class="relative">
- <Input type="email" v-model="form.customer.email" class="pr-8" />
- <button v-if="form.customer.email" @click="form.customer.email = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
- <Icon icon="lucide:x" class="h-4 w-4" />
- </button>
- </div>
- </div>
- <div class="space-y-2">
- <Label>Phone</Label>
- <div class="relative">
- <Input v-model="form.customer.phone" class="pr-8" />
- <button v-if="form.customer.phone" @click="form.customer.phone = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
- <Icon icon="lucide:x" class="h-4 w-4" />
- </button>
- </div>
- </div>
- <div class="space-y-2">
- <Label>Address</Label>
- <div class="relative">
- <Input v-model="form.customer.address" class="pr-8" />
- <button v-if="form.customer.address" @click="form.customer.address = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
- <Icon icon="lucide:x" class="h-4 w-4" />
- </button>
- </div>
- </div>
- <div class="space-y-2">
- <Label>Country</Label>
- <div class="relative">
- <Input v-model="form.customer.country" class="pr-8" />
- <button v-if="form.customer.country" @click="form.customer.country = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
- <Icon icon="lucide:x" class="h-4 w-4" />
- </button>
- </div>
- </div>
- </div>
- </div>
- 
- <div class="border-t pt-4 space-y-4">
- <div class="flex items-center justify-between">
- <Label class="text-lg font-semibold">Brand Identity / Sender</Label>
- <Select @update:modelValue="applyProfile">
- <SelectTrigger class="w-[200px]">
- <SelectValue placeholder="Load Profile..." />
- </SelectTrigger>
- <SelectContent>
- <SelectItem v-for="(p, index) in profileStore.profiles" :key="p.id || index" :value="p.id || ''">
- {{ p.name || 'Unnamed Profile' }}
- </SelectItem>
- </SelectContent>
- </Select>
- </div>
- <div class="grid grid-cols-2 gap-4">
- <div class="space-y-2">
- <Label>Company Name</Label>
- <div class="relative">
- <Input v-model="form.company.name" class="pr-8" />
- <button v-if="form.company.name" @click="form.company.name = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
- <Icon icon="lucide:x" class="h-4 w-4" />
- </button>
- </div>
- </div>
- <div class="space-y-2">
- <Label>Email</Label>
- <div class="relative">
- <Input type="email" v-model="form.company.email" class="pr-8" />
- <button v-if="form.company.email" @click="form.company.email = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
- <Icon icon="lucide:x" class="h-4 w-4" />
- </button>
- </div>
- </div>
- <div class="space-y-2">
- <Label>Phone</Label>
- <div class="relative">
- <Input v-model="form.company.phone" class="pr-8" />
- <button v-if="form.company.phone" @click="form.company.phone = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
- <Icon icon="lucide:x" class="h-4 w-4" />
- </button>
- </div>
- </div>
- <div class="space-y-2">
- <Label>Address</Label>
- <div class="relative">
- <Input v-model="form.company.address" class="pr-8" />
- <button v-if="form.company.address" @click="form.company.address = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
- <Icon icon="lucide:x" class="h-4 w-4" />
- </button>
- </div>
- </div>
- <div class="space-y-2">
- <Label>Country</Label>
- <div class="relative">
- <Input v-model="form.company.country" class="pr-8" />
- <button v-if="form.company.country" @click="form.company.country = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
- <Icon icon="lucide:x" class="h-4 w-4" />
- </button>
- </div>
- </div>
- <div class="space-y-2">
- <Label>Website</Label>
- <div class="relative">
- <Input v-model="form.company.website" class="pr-8" />
- <button v-if="form.company.website" @click="form.company.website = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
- <Icon icon="lucide:x" class="h-4 w-4" />
- </button>
- </div>
- </div>
- <div class="space-y-2">
- <Label>Custom Logo</Label>
- <div class="flex items-center space-x-2">
- <div v-if="form.company.logo" class="w-10 h-10 border rounded overflow-hidden bg-muted flex items-center justify-center">
- <img :src="form.company.logo" alt="Logo" class="max-w-full max-h-full object-contain" />
- </div>
- <Input type="file" accept="image/*" @change="handleLogoUpload" class="flex-1" />
- <Button v-if="form.company.logo" variant="outline" size="sm" @click="form.company.logo = ''">
- <Icon icon="lucide:x" class="h-4 w-4" />
- </Button>
- </div>
- </div>
- </div>
- </div>
+ <div class="space-y-6">
+  <Card>
+    <CardHeader>
+      <CardTitle>Invoice Details</CardTitle>
+    </CardHeader>
+    <CardContent class="space-y-6">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Invoice Number</Label>
+          <Input v-model="form.invoiceNumber" />
+        </div>
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Customer</Label>
+          <Select v-model="form.customerId" @update:modelValue="applyCustomer">
+            <SelectTrigger>
+              <SelectValue placeholder="Select Customer" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem v-for="(c, index) in customerStore.customers" :key="c.id || index" :value="c.id || ''">
+                {{ c.name }} ({{ c.company }})
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Invoice Date</Label>
+          <Input type="date" v-model="form.date" />
+        </div>
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Due Date</Label>
+          <Input type="date" v-model="form.dueDate" />
+        </div>
+      </div>
+      <div class="space-y-2">
+        <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Project Name</Label>
+        <Input v-model="form.projectName" placeholder="E.g. Website Redesign" />
+      </div>
+    </CardContent>
+  </Card>
 
- <div class="border-t pt-4 space-y-4">
- <Label class="text-lg font-semibold">Bank Details</Label>
- <div class="grid grid-cols-2 gap-4">
- <div class="space-y-2">
- <Label>Account Name</Label>
- <div class="relative">
- <Input v-model="form.bank.accountName" class="pr-8" />
- <button v-if="form.bank.accountName" @click="form.bank.accountName = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
- <Icon icon="lucide:x" class="h-4 w-4" />
- </button>
- </div>
- </div>
- <div class="space-y-2">
- <Label>Account Number</Label>
- <div class="relative">
- <Input v-model="form.bank.accountNumber" class="pr-8" />
- <button v-if="form.bank.accountNumber" @click="form.bank.accountNumber = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
- <Icon icon="lucide:x" class="h-4 w-4" />
- </button>
- </div>
- </div>
- <div class="space-y-2">
- <Label>IBAN</Label>
- <div class="relative">
- <Input v-model="form.bank.iban" class="pr-8" />
- <button v-if="form.bank.iban" @click="form.bank.iban = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
- <Icon icon="lucide:x" class="h-4 w-4" />
- </button>
- </div>
- </div>
- <div class="space-y-2">
- <Label>Bank Name</Label>
- <div class="relative">
- <Input v-model="form.bank.bankName" class="pr-8" />
- <button v-if="form.bank.bankName" @click="form.bank.bankName = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
- <Icon icon="lucide:x" class="h-4 w-4" />
- </button>
- </div>
- </div>
- </div>
- </div>
+  <Card v-if="form.customer">
+    <CardHeader>
+      <CardTitle>Billed To / Customer Details</CardTitle>
+    </CardHeader>
+    <CardContent class="space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Client Name</Label>
+          <div class="relative">
+            <Input v-model="form.customer.name" class="pr-8" />
+            <button v-if="form.customer.name" @click="form.customer.name = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <Icon icon="lucide:x" class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Company</Label>
+          <div class="relative">
+            <Input v-model="form.customer.company" class="pr-8" />
+            <button v-if="form.customer.company" @click="form.customer.company = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <Icon icon="lucide:x" class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Email</Label>
+          <div class="relative">
+            <Input type="email" v-model="form.customer.email" class="pr-8" />
+            <button v-if="form.customer.email" @click="form.customer.email = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <Icon icon="lucide:x" class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Phone</Label>
+          <div class="relative">
+            <Input v-model="form.customer.phone" class="pr-8" />
+            <button v-if="form.customer.phone" @click="form.customer.phone = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <Icon icon="lucide:x" class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Address</Label>
+          <div class="relative">
+            <Input v-model="form.customer.address" class="pr-8" />
+            <button v-if="form.customer.address" @click="form.customer.address = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <Icon icon="lucide:x" class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Country</Label>
+          <div class="relative">
+            <Input v-model="form.customer.country" class="pr-8" />
+            <button v-if="form.customer.country" @click="form.customer.country = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <Icon icon="lucide:x" class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
 
- <div class="border-t pt-4 space-y-4">
- <div class="flex items-center justify-between">
- <Label class="text-lg font-semibold">Items</Label>
- <Button variant="outline" size="sm" @click="addItem">
- <Icon icon="lucide:plus" class="mr-1 h-4 w-4" /> Add Item
- </Button>
- </div>
- 
- <div v-for="(item, index) in form.items" :key="item.id" class="p-4 border rounded-lg space-y-4 relative bg-muted dark:bg-card/50">
- <button @click="removeItem(index)" class="absolute top-2 right-2 text-red-500 hover:text-red-700">
- <Icon icon="lucide:x" class="h-4 w-4" />
- </button>
- <div class="grid grid-cols-12 gap-4">
- <div class="col-span-12 md:col-span-5 space-y-2">
- <Label>Item Name</Label>
- <Input v-model="item.name" placeholder="Item Name" />
- </div>
- <div class="col-span-4 md:col-span-2 space-y-2">
- <Label>Qty</Label>
- <Input type="number" v-model.number="item.quantity" />
- </div>
- <div class="col-span-8 md:col-span-3 space-y-2">
- <Label>Price</Label>
- <Input type="number" v-model.number="item.price" />
- </div>
- <div class="col-span-12 md:col-span-2 space-y-2 flex flex-col justify-end">
- <Label class="mb-2">Total</Label>
- <div class="font-medium pt-2">{{ formatCurrency(item.quantity * item.price) }}</div>
- </div>
- </div>
- </div>
- </div>
+  <Card>
+    <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardTitle>Brand Identity / Sender</CardTitle>
+      <Select @update:modelValue="applyProfile">
+        <SelectTrigger class="w-[200px]">
+          <SelectValue placeholder="Load Profile..." />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem v-for="(p, index) in profileStore.profiles" :key="p.id || index" :value="p.id || ''">
+            {{ p.name || 'Unnamed Profile' }}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    </CardHeader>
+    <CardContent class="space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Company Name</Label>
+          <div class="relative">
+            <Input v-model="form.company.name" class="pr-8" />
+            <button v-if="form.company.name" @click="form.company.name = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <Icon icon="lucide:x" class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Email</Label>
+          <div class="relative">
+            <Input type="email" v-model="form.company.email" class="pr-8" />
+            <button v-if="form.company.email" @click="form.company.email = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <Icon icon="lucide:x" class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Phone</Label>
+          <div class="relative">
+            <Input v-model="form.company.phone" class="pr-8" />
+            <button v-if="form.company.phone" @click="form.company.phone = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <Icon icon="lucide:x" class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Address</Label>
+          <div class="relative">
+            <Input v-model="form.company.address" class="pr-8" />
+            <button v-if="form.company.address" @click="form.company.address = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <Icon icon="lucide:x" class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Country</Label>
+          <div class="relative">
+            <Input v-model="form.company.country" class="pr-8" />
+            <button v-if="form.company.country" @click="form.company.country = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <Icon icon="lucide:x" class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Website</Label>
+          <div class="relative">
+            <Input v-model="form.company.website" class="pr-8" />
+            <button v-if="form.company.website" @click="form.company.website = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <Icon icon="lucide:x" class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Custom Logo</Label>
+          <div class="flex items-center space-x-2">
+            <div v-if="form.company.logo" class="w-10 h-10 border rounded overflow-hidden bg-muted flex items-center justify-center">
+              <img :src="form.company.logo" alt="Logo" class="max-w-full max-h-full object-contain" />
+            </div>
+            <Input type="file" accept="image/*" @change="handleLogoUpload" class="flex-1" />
+            <Button v-if="form.company.logo" variant="outline" size="sm" @click="form.company.logo = ''">
+              <Icon icon="lucide:x" class="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
 
- <div class="space-y-2">
- <Label>Discount Amount</Label>
- <Input type="number" v-model.number="form.discount" />
- </div>
+  <Card>
+    <CardHeader>
+      <CardTitle>Bank Details</CardTitle>
+    </CardHeader>
+    <CardContent class="space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Account Name</Label>
+          <div class="relative">
+            <Input v-model="form.bank.accountName" class="pr-8" />
+            <button v-if="form.bank.accountName" @click="form.bank.accountName = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <Icon icon="lucide:x" class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Account Number</Label>
+          <div class="relative">
+            <Input v-model="form.bank.accountNumber" class="pr-8" />
+            <button v-if="form.bank.accountNumber" @click="form.bank.accountNumber = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <Icon icon="lucide:x" class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">IBAN</Label>
+          <div class="relative">
+            <Input v-model="form.bank.iban" class="pr-8" />
+            <button v-if="form.bank.iban" @click="form.bank.iban = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <Icon icon="lucide:x" class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Bank Name</Label>
+          <div class="relative">
+            <Input v-model="form.bank.bankName" class="pr-8" />
+            <button v-if="form.bank.bankName" @click="form.bank.bankName = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <Icon icon="lucide:x" class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
 
- <div class="border-t pt-4 space-y-4">
- <Label class="text-lg font-semibold">Document Settings</Label>
- <div class="grid grid-cols-2 gap-4">
- <div class="space-y-2">
- <Label>Currency</Label>
- <Select v-model="form.currency">
- <SelectTrigger>
- <SelectValue placeholder="Select Currency" />
- </SelectTrigger>
- <SelectContent class="max-h-[300px]">
- <!-- Major / English -->
- <SelectItem value="USD">USD - US Dollar</SelectItem>
- <SelectItem value="GBP">GBP - British Pound</SelectItem>
- <SelectItem value="EUR">EUR - Euro</SelectItem>
- <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
- <SelectItem value="AUD">AUD - Australian Dollar</SelectItem>
- <SelectItem value="NZD">NZD - New Zealand Dollar</SelectItem>
- 
- <!-- Gulf / Middle East -->
- <SelectItem value="AED">AED - UAE Dirham</SelectItem>
- <SelectItem value="SAR">SAR - Saudi Riyal</SelectItem>
- <SelectItem value="QAR">QAR - Qatari Riyal</SelectItem>
- <SelectItem value="OMR">OMR - Omani Rial</SelectItem>
- <SelectItem value="KWD">KWD - Kuwaiti Dinar</SelectItem>
- <SelectItem value="BHD">BHD - Bahraini Dinar</SelectItem>
- 
- <!-- Asia / Other -->
- <SelectItem value="PKR">PKR - Pakistani Rupee</SelectItem>
- <SelectItem value="INR">INR - Indian Rupee</SelectItem>
- <SelectItem value="SGD">SGD - Singapore Dollar</SelectItem>
- <SelectItem value="CHF">CHF - Swiss Franc</SelectItem>
- <SelectItem value="ZAR">ZAR - South African Rand</SelectItem>
- </SelectContent>
- </Select>
+  <Card>
+    <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardTitle>Items</CardTitle>
+      <Button variant="outline" size="sm" @click="addItem">
+        <Icon icon="lucide:plus" class="mr-1 h-4 w-4" /> Add Item
+      </Button>
+    </CardHeader>
+    <CardContent class="space-y-4">
+      <div v-for="(item, index) in form.items" :key="item.id" class="p-4 border rounded-lg space-y-4 relative bg-muted dark:bg-card/50">
+        <button @click="removeItem(index)" class="absolute top-2 right-2 text-red-500 hover:text-red-700">
+          <Icon icon="lucide:x" class="h-4 w-4" />
+        </button>
+        <div class="grid grid-cols-12 gap-4">
+          <div class="col-span-12 md:col-span-5 space-y-2">
+            <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Item Name</Label>
+            <Input v-model="item.name" placeholder="Item Name" />
+          </div>
+          <div class="col-span-4 md:col-span-2 space-y-2">
+            <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Qty</Label>
+            <Input type="number" v-model.number="item.quantity" />
+          </div>
+          <div class="col-span-8 md:col-span-3 space-y-2">
+            <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Price</Label>
+            <Input type="number" v-model.number="item.price" />
+          </div>
+          <div class="col-span-12 md:col-span-2 space-y-2 flex flex-col justify-end">
+            <Label class="mb-2 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Total</Label>
+            <div class="font-medium pt-2">{{ formatCurrency(item.quantity * item.price) }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="space-y-2 pt-4 border-t">
+        <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Discount Amount</Label>
+        <Input type="number" v-model.number="form.discount" />
+      </div>
+    </CardContent>
+  </Card>
+
+  <Card>
+    <CardHeader>
+      <CardTitle>Document Settings</CardTitle>
+    </CardHeader>
+    <CardContent class="space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Currency</Label>
+          <Select v-model="form.currency">
+            <SelectTrigger>
+              <SelectValue placeholder="Select Currency" />
+            </SelectTrigger>
+            <SelectContent class="max-h-[300px]">
+              <SelectItem value="USD">USD - US Dollar</SelectItem>
+              <SelectItem value="GBP">GBP - British Pound</SelectItem>
+              <SelectItem value="EUR">EUR - Euro</SelectItem>
+              <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
+              <SelectItem value="AUD">AUD - Australian Dollar</SelectItem>
+              <SelectItem value="NZD">NZD - New Zealand Dollar</SelectItem>
+              <SelectItem value="AED">AED - UAE Dirham</SelectItem>
+              <SelectItem value="SAR">SAR - Saudi Riyal</SelectItem>
+              <SelectItem value="QAR">QAR - Qatari Riyal</SelectItem>
+              <SelectItem value="OMR">OMR - Omani Rial</SelectItem>
+              <SelectItem value="KWD">KWD - Kuwaiti Dinar</SelectItem>
+              <SelectItem value="BHD">BHD - Bahraini Dinar</SelectItem>
+              <SelectItem value="PKR">PKR - Pakistani Rupee</SelectItem>
+              <SelectItem value="INR">INR - Indian Rupee</SelectItem>
+              <SelectItem value="SGD">SGD - Singapore Dollar</SelectItem>
+              <SelectItem value="CHF">CHF - Swiss Franc</SelectItem>
+              <SelectItem value="ZAR">ZAR - South African Rand</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div class="space-y-2 mt-4">
+        <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Terms and Conditions</Label>
+        <Textarea v-model="form.terms" rows="3" />
+      </div>
+      <div class="space-y-2 mt-4">
+        <Label class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Notes</Label>
+        <Textarea v-model="form.notes" rows="2" />
+      </div>
+    </CardContent>
+  </Card>
  </div>
- </div>
- <div class="space-y-2 mt-4">
- <Label>Terms and Conditions</Label>
- <Textarea v-model="form.terms" rows="3" />
- </div>
- <div class="space-y-2 mt-4">
- <Label>Notes</Label>
- <Textarea v-model="form.notes" rows="2" />
- </div>
- </div>
- </CardContent>
- </Card>
 
  <!-- Preview Side -->
  <div class="space-y-4">
  <div class="flex items-center space-x-4 bg-muted dark:bg-card p-4 rounded-lg">
- <Label class="whitespace-nowrap font-semibold">Select Template:</Label>
+ <Label class="whitespace-nowrap font-semibold text-[10px] uppercase tracking-wider text-muted-foreground">Select Template:</Label>
  <Select v-model="form.template">
  <SelectTrigger>
  <SelectValue placeholder="Choose a template" />
