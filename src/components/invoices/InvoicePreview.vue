@@ -1,5 +1,5 @@
 <template>
-  <div :id="elementId">
+  <div :id="elementId" class="force-light bg-background text-foreground">
     <component 
       :is="selectedTemplateComponent" 
       :type="type"

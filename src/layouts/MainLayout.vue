@@ -37,9 +37,14 @@
  <!-- Main Content -->
  <main class="flex-1 flex flex-col overflow-hidden">
   <!-- Header -->
-  <header class="h-auto py-3 flex flex-col justify-center items-start px-4 bg-background dark:bg-card border-b dark:border-border md:hidden">
-  <h1 class="text-xl font-bold text-foreground leading-tight">Bilify</h1>
-  <p class="text-[9px] text-muted-foreground font-medium uppercase tracking-wider mt-0.5">Invoice & Quote Generator with AI</p>
+  <header class="h-auto py-3 flex items-center justify-between px-4 bg-background dark:bg-card border-b dark:border-border md:hidden">
+    <div class="flex flex-col justify-center items-start">
+      <h1 class="text-xl font-bold text-foreground leading-tight">Bilify</h1>
+      <p class="text-[9px] text-muted-foreground font-medium uppercase tracking-wider mt-0.5">Invoice & Quote Generator with AI</p>
+    </div>
+    <button @click="toggleDark()" class="p-2 text-muted-foreground hover:text-foreground dark:hover:text-foreground transition-colors flex-shrink-0">
+      <Icon :icon="isDark ? 'lucide:sun' : 'lucide:moon'" class="h-5 w-5" />
+    </button>
   </header>
   <!-- Content -->
   <div class="flex-1 overflow-auto p-4 md:p-6 pb-24 md:pb-6">
@@ -103,6 +108,12 @@ export default defineComponent({
  const logout = () => {
  authStore.logout()
  router.push('/auth/login')
+ }
+
+ // Ensure default light mode if user hasn't explicitly set a preference
+ if (localStorage.getItem('vueuse-color-scheme') === null) {
+   localStorage.setItem('vueuse-color-scheme', 'light')
+   document.documentElement.classList.remove('dark')
  }
 
  const isDark = useDark()

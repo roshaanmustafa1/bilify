@@ -40,7 +40,7 @@
 
     <div class="p-6">
       <!-- Info Section -->
-      <div class="grid grid-cols-2 gap-8 mb-10">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
         <div class="border border-border rounded-sm">
           <div
             class="bg-muted px-4 py-2 font-bold text-foreground border-b border-border uppercase tracking-wider text-xs"
@@ -120,8 +120,10 @@
       </div>
 
       <!-- Items Table -->
-      <div class="mb-10">
-        <table class="w-full text-left border-collapse border border-border">
+      <div class="mb-10 overflow-x-auto">
+        <table
+          class="w-full text-left border-collapse border border-border min-w-[500px]"
+        >
           <thead>
             <tr class="bg-muted">
               <th
@@ -176,7 +178,7 @@
       </div>
 
       <!-- Footer Section -->
-      <div class="flex justify-between items-start gap-8">
+      <div class="flex flex-col md:flex-row justify-between items-start gap-8">
         <div class="flex-1 space-y-6">
           <div
             v-if="bank && bank.accountName"
@@ -228,7 +230,7 @@
           </div>
         </div>
 
-        <div class="w-64 border border-border rounded-sm">
+        <div class="w-full md:w-64 border border-border rounded-sm">
           <div
             class="bg-muted px-4 py-2 font-bold text-foreground border-b border-border uppercase tracking-wider text-xs"
           >
@@ -285,7 +287,7 @@ export default defineComponent({
     profile: { type: Object, required: true },
   },
   computed: {
-    ...mapState(useSettingsStore, ['app']),
+    ...mapState(useSettingsStore, ["app"]),
     document() {
       return this.invoice;
     },
@@ -297,13 +299,13 @@ export default defineComponent({
     },
     bank() {
       return this.invoice?.bank || this.profile?.bank || {};
-    }
+    },
   },
   methods: {
     formatCurrency(val: number) {
-      const curr = this.invoice?.currency || this.app?.currency || 'USD';
+      const curr = this.invoice?.currency || this.app?.currency || "USD";
       return `${val} ${curr}`;
-    }
-  }
+    },
+  },
 });
 </script>

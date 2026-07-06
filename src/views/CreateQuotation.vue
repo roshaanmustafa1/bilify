@@ -592,14 +592,8 @@
         </div>
 
         <div class="sticky top-6">
-          <div
-            class="bg-muted dark:bg-card p-4 rounded-lg overflow-auto max-h-[80vh] shadow-inner"
-          >
-            <InvoicePreview
-              type="quotation"
-              :document="computedQuotation"
-              elementId="quotation-pdf"
-            />
+          <div class="bg-muted dark:bg-card p-4 rounded-lg overflow-auto max-h-[80vh] shadow-inner">
+            <InvoicePreview type="quotation" :document="computedQuotation" elementId="quotation-pdf" />
           </div>
         </div>
       </div>

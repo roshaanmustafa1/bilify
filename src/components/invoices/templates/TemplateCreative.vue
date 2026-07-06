@@ -1,10 +1,9 @@
 <template>
   <div
-    class="bg-background font-sans max-w-[800px] mx-auto text-sm shadow-sm flex min-h-[800px]"
+    class="bg-background font-sans max-w-[800px] mx-auto text-sm shadow-sm flex flex-col md:flex-row min-h-[800px]"
   >
-    <!-- Sidebar -->
     <div
-      class="w-1/3 bg-primary/10 p-4 border-r border-primary/20 flex flex-col"
+      class="w-full md:w-1/3 bg-primary/10 p-4 border-b md:border-b-0 md:border-r border-primary/20 flex flex-col"
     >
       <div class="mb-10 flex-shrink-0">
         <div
@@ -145,9 +144,9 @@
     </div>
 
     <!-- Main Content -->
-    <div class="w-2/3 p-6 flex flex-col bg-background">
+    <div class="w-full md:w-2/3 p-4 md:p-6 flex flex-col bg-background">
       <div
-        class="flex justify-between items-end mb-6 border-b-2 border-primary/20 pb-6"
+        class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 border-b-2 border-primary/20 pb-6 gap-4"
       >
         <div>
           <h1
@@ -182,7 +181,7 @@
         >
           {{ customer ? customer.name : "N/A" }}
         </div>
-        <div class="flex justify-between gap-2">
+        <div class="flex flex-col md:flex-row justify-between gap-4 md:gap-2">
           <div class="text-muted-foreground mt-1 space-y-0.5 text-sm">
             <div v-if="customer && customer.company">
               <span class="text-foreground">Company : </span>
@@ -199,7 +198,7 @@
               <span class="text-foreground">Phone : </span> {{ customer.phone }}
             </div>
           </div>
-          <div class="flex flex-col gap-2 items-end">
+          <div class="flex flex-col gap-2 items-start md:items-end">
             <div v-if="document.projectName">
               <div class="text-foreground">Project Name :</div>
               <div
@@ -224,8 +223,8 @@
         </div>
       </div>
 
-      <div class="mb-auto">
-        <table class="w-full text-left border-collapse">
+      <div class="mb-auto overflow-x-auto">
+        <table class="w-full text-left border-collapse min-w-[500px]">
           <thead>
             <tr class="border-b-2 border-primary/20">
               <th
@@ -278,7 +277,7 @@
       </div>
 
       <!-- Totals -->
-      <div class="w-64 ml-auto mt-8 space-y-3">
+      <div class="w-full md:w-64 ml-auto mt-8 space-y-3">
         <div class="flex justify-between text-muted-foreground text-sm">
           <span>Subtotal</span>
           <span class="font-medium text-foreground">{{

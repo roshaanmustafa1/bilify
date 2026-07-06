@@ -592,14 +592,8 @@
         </div>
 
         <div class="sticky top-6">
-          <div
-            class="bg-muted dark:bg-card p-4 rounded-lg overflow-auto max-h-[80vh] shadow-inner"
-          >
-            <InvoicePreview
-              type="invoice"
-              :document="computedInvoice"
-              elementId="invoice-pdf"
-            />
+          <div class="bg-muted dark:bg-card p-4 rounded-lg overflow-auto max-h-[80vh] shadow-inner">
+            <InvoicePreview type="invoice" :document="computedInvoice" elementId="invoice-pdf" />
           </div>
         </div>
       </div>
