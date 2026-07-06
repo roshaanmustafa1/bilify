@@ -14,10 +14,7 @@
         <Label for="address">Address</Label>
         <Textarea id="address" v-model="form.address" rows="3" placeholder="123 Corporate Blvd..."></Textarea>
       </div>
-      <div class="grid gap-2">
-        <Label for="taxId">Registration / Tax ID</Label>
-        <Input id="taxId" v-model="form.taxId" type="text" placeholder="XX-1234567" />
-      </div>
+
       <div class="pt-2">
         <Button type="submit" :disabled="loading" class="w-full">
           {{ loading ? 'Saving...' : (form.id ? 'Update Profile' : 'Create Profile') }}
@@ -50,7 +47,7 @@ export default {
         name: '',
         logo: '',
         address: '',
-        taxId: ''
+
       }
     }
   },
@@ -68,7 +65,7 @@ export default {
             name: '',
             logo: '',
             address: '',
-            taxId: ''
+
           }
         }
       }

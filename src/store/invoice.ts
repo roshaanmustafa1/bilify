@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { Customer } from './customer'
 import { CompanySettings, BankSettings } from './settings'
+import { supabase } from '../services/supabase'
 
 export interface InvoiceItem {
   id: string
@@ -12,7 +13,7 @@ export interface InvoiceItem {
 }
 
 export interface Invoice {
-  id: string
+  id?: string
   invoiceNumber: string
   projectName?: string
   date: string
@@ -30,27 +31,111 @@ export interface Invoice {
   notes: string
   terms: string
   status: 'Draft' | 'Sent' | 'Paid' | 'Overdue'
+  template?: string
 }
 
 export const useInvoiceStore = defineStore('invoice', {
   state: () => ({
-    invoices: [] as Invoice[]
+    invoices: [] as Invoice[],
+    loading: false,
+    error: null as string | null
   }),
   actions: {
-    addInvoice(invoice: Omit<Invoice, 'id'>) {
-      this.invoices.push({
-        ...invoice,
-        id: Date.now().toString()
-      })
-    },
-    updateInvoice(id: string, payload: Partial<Invoice>) {
-      const index = this.invoices.findIndex(i => i.id === id)
-      if (index !== -1) {
-        this.invoices[index] = { ...this.invoices[index], ...payload }
+    async fetchInvoices() {
+      this.loading = true
+      this.error = null
+      
+      try {
+        const { data, error } = await supabase
+          .from('invoices')
+          .select('*')
+        
+        if (error) throw error
+        
+        this.invoices = data || []
+        return data
+      } catch (err: any) {
+        this.error = err.message || 'Failed to fetch invoices'
+        throw err
+      } finally {
+        this.loading = false
       }
     },
-    deleteInvoice(id: string) {
-      this.invoices = this.invoices.filter(i => i.id !== id)
+    
+    async addInvoice(invoice: Omit<Invoice, 'id'>) {
+      this.loading = true
+      this.error = null
+      
+      try {
+        const { data, error } = await supabase
+          .from('invoices')
+          .insert([invoice])
+          .select()
+        
+        if (error) throw error
+        
+        if (data && data.length > 0) {
+          this.invoices.push(data[0])
+          return data[0]
+        }
+        return null
+      } catch (err: any) {
+        this.error = err.message || 'Failed to create invoice'
+        throw err
+      } finally {
+        this.loading = false
+      }
+    },
+    
+    async updateInvoice(id: string, payload: Partial<Invoice>) {
+      this.loading = true
+      this.error = null
+      
+      try {
+        const { data, error } = await supabase
+          .from('invoices')
+          .update(payload)
+          .eq('id', id)
+          .select()
+        
+        if (error) throw error
+        
+        if (data && data.length > 0) {
+          const index = this.invoices.findIndex(i => i.id === id)
+          if (index !== -1) {
+            this.invoices[index] = data[0]
+          }
+          return data[0]
+        }
+        return null
+      } catch (err: any) {
+        this.error = err.message || 'Failed to update invoice'
+        throw err
+      } finally {
+        this.loading = false
+      }
+    },
+    
+    async deleteInvoice(id: string) {
+      this.loading = true
+      this.error = null
+      
+      try {
+        const { error } = await supabase
+          .from('invoices')
+          .delete()
+          .eq('id', id)
+        
+        if (error) throw error
+        
+        this.invoices = this.invoices.filter(i => i.id !== id)
+        return true
+      } catch (err: any) {
+        this.error = err.message || 'Failed to delete invoice'
+        throw err
+      } finally {
+        this.loading = false
+      }
     }
   },
   getters: {

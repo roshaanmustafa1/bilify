@@ -7,7 +7,6 @@ export interface CompanySettings {
   phone: string
   email: string
   website: string
-  taxId: string
   logo: string
 }
 
@@ -18,21 +17,6 @@ export interface BankSettings {
   bankName: string
 }
 
-export interface CompanyProfile {
-  id: string
-  name: string
-  address: string
-  country: string
-  phone: string
-  email: string
-  website: string
-  taxId: string
-  logo: string
-  bank: BankSettings
-  currency?: string
-  terms?: string
-  template?: string
-}
 
 export interface AppSettings {
   currency: string
@@ -76,28 +60,6 @@ const getDefaultCurrency = (): string => {
 
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
-    profiles: [
-      {
-        id: 'default',
-        name: 'Smart Solutions Inc.',
-        address: '123 Tech Lane, Silicon Valley, CA 94025',
-        country: 'United States',
-        phone: '+1 (555) 123-4567',
-        email: 'hello@smartsolutions.com',
-        website: 'www.smartsolutions.com',
-        taxId: 'US-987654321',
-        logo: '',
-        bank: {
-          accountName: 'Smart Solutions Inc.',
-          accountNumber: '02110107229041',
-          iban: 'PK79MEZN0002110107229041',
-          bankName: 'Meezan Bank'
-        },
-        currency: getDefaultCurrency(),
-        terms: 'Payment is due within 30 days. Thank you for your business!'
-      }
-    ] as CompanyProfile[],
-    activeProfileId: 'default',
     app: {
       currency: getDefaultCurrency(),
       taxRate: 10,
@@ -108,39 +70,6 @@ export const useSettingsStore = defineStore('settings', {
     } as AppSettings
   }),
   actions: {
-    addProfile(profile: Omit<CompanyProfile, 'id'>) {
-      const newProfile = {
-        ...profile,
-        id: Date.now().toString()
-      }
-      this.profiles.push(newProfile)
-      return newProfile
-    },
-    updateProfile(id: string, payload: Partial<Omit<CompanyProfile, 'id'>>) {
-      const index = this.profiles.findIndex(p => p.id === id)
-      if (index !== -1) {
-        // Handle nested bank update carefully
-        const existingProfile = this.profiles[index]
-        const updatedBank = payload.bank 
-          ? { ...existingProfile.bank, ...payload.bank }
-          : existingProfile.bank
-
-        this.profiles[index] = { 
-          ...existingProfile, 
-          ...payload,
-          bank: updatedBank
-        }
-      }
-    },
-    deleteProfile(id: string) {
-      this.profiles = this.profiles.filter(p => p.id !== id)
-      if (this.activeProfileId === id) {
-        this.activeProfileId = this.profiles.length > 0 ? this.profiles[0].id : ''
-      }
-    },
-    setActiveProfile(id: string) {
-      this.activeProfileId = id
-    },
     updateApp(payload: Partial<AppSettings>) {
       this.app = { ...this.app, ...payload }
     }

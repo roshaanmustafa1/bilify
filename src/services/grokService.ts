@@ -1,9 +1,5 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
-
-// In a real production app, the key shouldn't be exposed directly in frontend
-// or should use a secure backend proxy. For this prototype, we'll use an env var.
-const API_KEY = (import.meta as any).env.VITE_GEMINI_API_KEY || ''
-const genAI = new GoogleGenerativeAI(API_KEY)
+// Using Groq API with LLaMA 3 for fast JSON extraction
+const API_KEY = (import.meta as any).env.VITE_GROK_API_KEY || ''
 
 export interface AIParseResult {
   type: 'invoice' | 'quotation'
@@ -21,7 +17,6 @@ export interface AIParseResult {
     address?: string
     country?: string
     website?: string
-    taxId?: string
   }
   bank?: {
     accountName?: string
@@ -39,7 +34,7 @@ export interface AIParseResult {
 }
 
 const SYSTEM_PROMPT = `You are a helpful AI assistant that extracts invoice and quotation details from natural language.
-You must ALWAYS respond with valid JSON matching the following schema exactly. Do not wrap the JSON in markdown code blocks or add any other text.
+You must ALWAYS respond with a valid JSON object matching the following schema exactly. Do not wrap the JSON in markdown code blocks or add any other text.
 Schema:
 {
   "type": "invoice" | "quotation",
@@ -56,8 +51,7 @@ Schema:
     "phone": "string (optional)",
     "address": "string (optional)",
     "country": "string (optional)",
-    "website": "string (optional)",
-    "taxId": "string (optional)"
+    "website": "string (optional)"
   },
   "bank": {
     "accountName": "string (optional)",
@@ -78,24 +72,38 @@ Schema:
 `
 
 export const parseInvoicePrompt = async (prompt: string): Promise<AIParseResult> => {
-  if (!API_KEY) {
-    throw new Error('Gemini API key is not configured. Please add VITE_GEMINI_API_KEY to your .env file.')
-  }
-
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
-    const result = await model.generateContent([
-      { text: SYSTEM_PROMPT },
-      { text: `Extract details from this request: "${prompt}"` }
-    ])
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: `Extract details from this request: "${prompt}"` }
+        ],
+        temperature: 0.1,
+        response_format: { type: "json_object" }
+      })
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.error?.message || 'Failed to fetch from Groq API')
+    }
+
+    const data = await response.json()
+    const responseText = data.choices[0]?.message?.content || '{}'
     
-    const responseText = result.response.text()
     // Clean up potential markdown formatting if the model disobeys instructions
     const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim()
     
     return JSON.parse(cleanJson) as AIParseResult
   } catch (error) {
-    console.error('Error parsing prompt with Gemini:', error)
+    console.error('Error parsing prompt with Groq:', error)
     throw new Error('Failed to parse the request using AI. Please try again or fill manually.')
   }
 }

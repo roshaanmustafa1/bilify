@@ -16,13 +16,13 @@
         <TableHeader>
           <TableRow>
             <TableHead>Company Name</TableHead>
-            <TableHead>Tax ID</TableHead>
+
             <TableHead class="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           <TableRow v-if="profiles.length === 0">
-            <TableCell colspan="3" class="text-center h-24 text-muted-foreground">
+            <TableCell colspan="2" class="text-center h-24 text-muted-foreground">
               No profiles found. Add one above.
             </TableCell>
           </TableRow>
@@ -33,9 +33,7 @@
                 <span>{{ profile.name || 'Unnamed' }}</span>
               </div>
             </TableCell>
-            <TableCell class="text-muted-foreground">
-              {{ profile.taxId || 'N/A' }}
-            </TableCell>
+
             <TableCell class="text-right">
               <Button variant="ghost" size="sm" @click="setActiveProfile(profile)">
                 Edit

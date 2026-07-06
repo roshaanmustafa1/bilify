@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue'
 import { useQuotationStore } from '../store/quotation'
@@ -80,6 +80,11 @@ export default defineComponent({
  const customer = customerStore.getCustomerById(id)
  return customer ? customer.name : 'Unknown'
  }
+
+ onMounted(() => {
+   quotationStore.fetchQuotations()
+   customerStore.fetchCustomers() // ensure customers are loaded for names
+ })
 
  const formatCurrency = (val: number) => {
  return new Intl.NumberFormat('en-US', { style: 'currency', currency: settingsStore.app.currency }).format(val)

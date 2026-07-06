@@ -129,7 +129,7 @@
  <SelectValue placeholder="Load Profile..." />
  </SelectTrigger>
  <SelectContent>
- <SelectItem v-for="p in settingsStore.profiles" :key="p.id" :value="p.id">
+ <SelectItem v-for="p in profileStore.profiles" :key="p.id" :value="p.id">
  {{ p.name || 'Unnamed Profile' }}
  </SelectItem>
  </SelectContent>
@@ -371,8 +371,9 @@ import { useQuotationStore, Quotation } from '../store/quotation'
 import { InvoiceItem } from '../store/invoice'
 import { useCustomerStore } from '../store/customer'
 import { useSettingsStore } from '../store/settings'
+import { useProfileStore } from '../store/profile'
 import { generatePDF } from '../services/pdfService'
-import { AIParseResult } from '../services/geminiService'
+import { AIParseResult } from '../services/grokService'
 
 import { Button } from '../components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card'
@@ -396,6 +397,7 @@ export default defineComponent({
  const quotationStore = useQuotationStore()
  const customerStore = useCustomerStore()
  const settingsStore = useSettingsStore()
+ const profileStore = useProfileStore()
 
  const isEdit = ref(false)
  const isAIModalOpen = ref(false)
@@ -415,16 +417,16 @@ export default defineComponent({
  terms: settingsStore.app.terms,
  status: 'Draft' as Quotation['status'],
  company: { 
- name: settingsStore.profiles.find(p => p.id === settingsStore.activeProfileId)?.name || '',
- address: settingsStore.profiles.find(p => p.id === settingsStore.activeProfileId)?.address || '',
- country: settingsStore.profiles.find(p => p.id === settingsStore.activeProfileId)?.country || '',
- phone: settingsStore.profiles.find(p => p.id === settingsStore.activeProfileId)?.phone || '',
- email: settingsStore.profiles.find(p => p.id === settingsStore.activeProfileId)?.email || '',
- website: settingsStore.profiles.find(p => p.id === settingsStore.activeProfileId)?.website || '',
- taxId: settingsStore.profiles.find(p => p.id === settingsStore.activeProfileId)?.taxId || '',
- logo: settingsStore.profiles.find(p => p.id === settingsStore.activeProfileId)?.logo || ''
+ name: profileStore.profiles.find(p => p.id === profileStore.activeProfileId)?.name || '',
+ address: profileStore.profiles.find(p => p.id === profileStore.activeProfileId)?.address || '',
+ country: profileStore.profiles.find(p => p.id === profileStore.activeProfileId)?.country || '',
+ phone: profileStore.profiles.find(p => p.id === profileStore.activeProfileId)?.phone || '',
+ email: profileStore.profiles.find(p => p.id === profileStore.activeProfileId)?.email || '',
+ website: profileStore.profiles.find(p => p.id === profileStore.activeProfileId)?.website || '',
+
+ logo: profileStore.profiles.find(p => p.id === profileStore.activeProfileId)?.logo || ''
  },
- bank: { ...(settingsStore.profiles.find(p => p.id === settingsStore.activeProfileId)?.bank || { accountName: '', accountNumber: '', iban: '', bankName: '' }) },
+ bank: { ...(profileStore.profiles.find(p => p.id === profileStore.activeProfileId)?.bank || { accountName: '', accountNumber: '', iban: '', bankName: '' }) },
  currency: settingsStore.app.currency
  })
 
@@ -442,6 +444,12 @@ export default defineComponent({
  }
 
  onMounted(() => {
+ customerStore.fetchCustomers()
+ profileStore.fetchProfiles().then(() => {
+   if (profileStore.activeProfileId && !form.company.name) {
+     applyProfile(profileStore.activeProfileId);
+   }
+ })
  const id = route.query.id as string
  if (id) {
  const quo = quotationStore.getQuotationById(id)
@@ -492,7 +500,7 @@ export default defineComponent({
  
  const applyProfile = (id: any) => {
  if (!id) return;
- const profile = settingsStore.profiles.find(p => p.id === id)
+ const profile = profileStore.profiles.find(p => p.id === id)
  if (profile) {
  form.company.name = profile.name
  form.company.address = profile.address
@@ -500,7 +508,7 @@ export default defineComponent({
  form.company.phone = profile.phone
  form.company.email = profile.email
  form.company.website = profile.website
- form.company.taxId = profile.taxId
+
  form.company.logo = profile.logo
  form.bank = { ...profile.bank }
  if (profile.currency) form.currency = profile.currency
@@ -508,22 +516,28 @@ export default defineComponent({
  }
  }
 
- const saveQuotation = () => {
- if (!form.customerId) {
- alert('Please select a customer')
- return
- }
- 
- // Update global defaults for next time
- settingsStore.updateApp({ currency: form.currency })
- 
- if (isEdit.value) {
- quotationStore.updateQuotation(form.id, computedQuotation.value as any)
- } else {
- quotationStore.addQuotation(computedQuotation.value as any)
- }
- router.push('/quotations')
- }
+  const saveQuotation = async () => {
+    if (!form.customerId) {
+      alert('Please select a customer')
+      return
+    }
+    
+    // Update global defaults for next time
+    settingsStore.updateApp({ currency: form.currency })
+    
+    try {
+      if (isEdit.value) {
+        await quotationStore.updateQuotation(form.id, computedQuotation.value as any)
+      } else {
+        const payload = computedQuotation.value as any;
+        delete payload.id;
+        await quotationStore.addQuotation(payload)
+      }
+      router.push('/quotations')
+    } catch (e: any) {
+      alert(e.message || 'Error saving quotation');
+    }
+  }
 
  const downloadPDF = () => {
  generatePDF('quotation-pdf', `${form.quotationNumber}.pdf`)
@@ -545,7 +559,7 @@ export default defineComponent({
  phone: data.customer.phone || '',
  address: data.customer.address || '',
  country: '',
- taxId: ''
+
  })
  cust = customerStore.customers[customerStore.customers.length - 1]
  }
@@ -579,6 +593,7 @@ export default defineComponent({
 
  return {
  settingsStore,
+ profileStore,
  isEdit,
  form,
  customerStore,

@@ -41,7 +41,7 @@ import { Icon } from '@iconify/vue'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
-import { parseInvoicePrompt } from '../../services/geminiService'
+import { parseInvoicePrompt } from '../../services/grokService'
 
 export default defineComponent({
  name: 'AIAssistantModal',

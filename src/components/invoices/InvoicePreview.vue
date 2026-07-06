@@ -12,6 +12,7 @@
 <script lang="ts">
 import { defineComponent, computed } from "vue";
 import { useSettingsStore } from "../../store/settings";
+import { useProfileStore } from "../../store/profile";
 import { useCustomerStore } from "../../store/customer";
 
 import TemplateMinimal from "./templates/TemplateMinimal.vue";
@@ -44,6 +45,7 @@ export default defineComponent({
   setup(props) {
     const settingsStore = useSettingsStore();
     const customerStore = useCustomerStore();
+    const profileStore = useProfileStore();
 
     const sender = computed(() => {
       if (
@@ -54,9 +56,9 @@ export default defineComponent({
         return props.document.company;
       }
       const p =
-        settingsStore.profiles.find(
-          (p) => p.id === settingsStore.activeProfileId,
-        ) || settingsStore.profiles[0];
+        profileStore.profiles.find(
+          (p) => p.id === profileStore.activeProfileId,
+        ) || profileStore.profiles[0];
       return p || {};
     });
 
@@ -66,7 +68,7 @@ export default defineComponent({
         return props.document.template;
       }
       // Check active profile
-      const activeProfile = settingsStore.profiles.find(p => p.id === settingsStore.activeProfileId);
+      const activeProfile = profileStore.profiles.find(p => p.id === profileStore.activeProfileId);
       if (activeProfile && activeProfile.template) {
         return activeProfile.template;
       }
