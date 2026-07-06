@@ -36,7 +36,7 @@
  <SelectValue placeholder="Select Customer" />
  </SelectTrigger>
  <SelectContent>
- <SelectItem v-for="c in customerStore.customers" :key="c.id" :value="c.id">
+ <SelectItem v-for="(c, index) in customerStore.customers" :key="c.id || index" :value="c.id || ''">
  {{ c.name }} ({{ c.company }})
  </SelectItem>
  </SelectContent>
@@ -129,7 +129,7 @@
  <SelectValue placeholder="Load Profile..." />
  </SelectTrigger>
  <SelectContent>
- <SelectItem v-for="p in profileStore.profiles" :key="p.id" :value="p.id">
+ <SelectItem v-for="(p, index) in profileStore.profiles" :key="p.id || index" :value="p.id || ''">
  {{ p.name || 'Unnamed Profile' }}
  </SelectItem>
  </SelectContent>
@@ -505,13 +505,18 @@ export default defineComponent({
  if (profile) {
  form.company.name = profile.name
  form.company.address = profile.address
- form.company.country = profile.country
+ form.company.country = profile.country || ''
  form.company.phone = profile.phone
  form.company.email = profile.email
- form.company.website = profile.website
+ form.company.website = profile.website || ''
 
- form.company.logo = profile.logo
- form.bank = { ...profile.bank }
+ form.company.logo = profile.logo || ''
+ form.bank = {
+   accountName: profile.bank?.accountName || '',
+   accountNumber: profile.bank?.accountNumber || '',
+   iban: profile.bank?.iban || '',
+   bankName: profile.bank?.bankName || ''
+ }
  if (profile.currency) form.currency = profile.currency
  if (profile.terms) form.terms = profile.terms
  }
@@ -564,7 +569,7 @@ export default defineComponent({
  })
  cust = customerStore.customers[customerStore.customers.length - 1]
  }
- form.customerId = cust.id
+ form.customerId = cust?.id || ''
  }
 
  if (data.sender) {

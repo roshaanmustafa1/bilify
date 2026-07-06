@@ -6,6 +6,8 @@
     "useDefineForClassFields": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "noImplicitAny": false,
+    "allowJs": true,
     "paths": {
       "@/*": ["./src/*"]
     },

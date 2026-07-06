@@ -120,7 +120,7 @@
                 variant="ghost"
                 size="icon"
                 class="text-red-500"
-                @click="customerStore.deleteCustomer(customer.id)"
+                @click="customerStore.deleteCustomer(customer.id || '')"
               >
                 <Icon icon="lucide:trash" class="h-4 w-4" />
               </Button>
@@ -208,7 +208,7 @@ export default defineComponent({
 
     const editCustomer = (customer: Customer) => {
       Object.assign(form, customer);
-      editingId.value = customer.id;
+      editingId.value = customer.id || null;
       isDialogOpen.value = true;
     };
 

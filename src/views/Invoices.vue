@@ -36,10 +36,10 @@
  </TableCell>
  <TableCell class="text-right">{{ formatCurrency(inv.total) }}</TableCell>
  <TableCell class="text-right space-x-2">
- <Button variant="ghost" size="icon" @click="viewInvoice(inv.id)">
+ <Button variant="ghost" size="icon" @click="viewInvoice(inv.id || '')">
  <Icon icon="lucide:eye" class="h-4 w-4" />
  </Button>
- <Button variant="ghost" size="icon" class="text-red-500" @click="invoiceStore.deleteInvoice(inv.id)">
+ <Button variant="ghost" size="icon" class="text-red-500" @click="invoiceStore.deleteInvoice(inv.id || '')">
  <Icon icon="lucide:trash" class="h-4 w-4" />
  </Button>
  </TableCell>
