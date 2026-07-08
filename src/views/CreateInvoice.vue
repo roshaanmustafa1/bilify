@@ -1017,7 +1017,6 @@ export default defineComponent({
       handleAIGenerated,
       formatCurrency,
       handleLogoUpload,
-      applyCustomer,
     };
   },
 });

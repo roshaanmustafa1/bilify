@@ -110,7 +110,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, onMounted } from "vue";
+import { defineComponent, ref, onMounted } from "vue";
 import { Icon } from "@iconify/vue";
 import { useAuthStore } from "../store/auth";
 import { useRouter } from "vue-router";
