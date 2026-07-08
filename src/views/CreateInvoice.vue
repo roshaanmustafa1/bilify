@@ -459,12 +459,22 @@
               :key="item.id"
               class="p-4 border rounded-lg space-y-4 relative bg-muted dark:bg-card/50"
             >
-              <button
-                @click="removeItem(index)"
-                class="absolute top-2 right-2 text-red-500 hover:text-red-700"
-              >
-                <Icon icon="lucide:x" class="h-4 w-4" />
-              </button>
+              <div class="absolute top-2 right-2 flex items-center space-x-2">
+                <button
+                  @click="duplicateItem(index)"
+                  class="text-muted-foreground hover:text-foreground"
+                  title="Duplicate Row"
+                >
+                  <Icon icon="lucide:copy" class="h-4 w-4" />
+                </button>
+                <button
+                  @click="removeItem(index)"
+                  class="text-red-500 hover:text-red-700"
+                  title="Remove Row"
+                >
+                  <Icon icon="lucide:x" class="h-4 w-4" />
+                </button>
+              </div>
               <div class="grid grid-cols-12 gap-4">
                 <div class="col-span-12 md:col-span-5 space-y-2">
                   <Label
@@ -549,6 +559,13 @@
                     >
                   </SelectContent>
                 </Select>
+              </div>
+              <div class="space-y-2">
+                <Label
+                  class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground"
+                  >Tax Rate (%)</Label
+                >
+                <Input type="number" v-model.number="globalTaxRate" min="0" max="100" />
               </div>
             </div>
             <div class="space-y-2 mt-4">
@@ -776,6 +793,23 @@ export default defineComponent({
       form.items.splice(index, 1);
     };
 
+    const duplicateItem = (index: number) => {
+      const itemToCopy = form.items[index];
+      form.items.splice(index + 1, 0, {
+        ...itemToCopy,
+        id: Date.now().toString() + Math.random().toString(36).substring(2, 6)
+      });
+    };
+
+    const globalTaxRate = computed({
+      get: () => form.items.length > 0 ? form.items[0].taxRate : settingsStore.app.taxRate,
+      set: (val: number) => {
+        form.items.forEach(item => {
+          item.taxRate = val || 0;
+        });
+      }
+    });
+
     const computedInvoice = computed(() => {
       const subtotal = form.items.reduce(
         (sum, item) => sum + item.quantity * item.price,
@@ -916,15 +950,18 @@ export default defineComponent({
       customerStore,
       addItem,
       removeItem,
+      duplicateItem,
       computedInvoice,
       saveInvoice,
+      globalTaxRate,
+      applyCustomer,
+      applyProfile,
       downloadPDF,
       isAIModalOpen,
       openAIAssistant,
       handleAIGenerated,
       formatCurrency,
       handleLogoUpload,
-      applyProfile,
       applyCustomer,
     };
   },

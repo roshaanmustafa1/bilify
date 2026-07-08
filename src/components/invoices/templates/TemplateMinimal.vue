@@ -1,10 +1,14 @@
 <template>
   <div class="bg-background p-8 font-sans max-w-[800px] mx-auto text-sm">
     <!-- Header -->
-    <div class="flex flex-row justify-between items-start mb-6 gap-0">
+    <div
+      class="flex flex-col-reverse md:flex-row justify-between items-start mb-6 gap-6 md:gap-0"
+    >
       <div>
-        <h1 class="text-3xl font-bold text-primary mb-6">
-          {{ sender.name }}
+        <h1
+          class="text-4xl font-bold text-primary mb-6 uppercase tracking-wider"
+        >
+          {{ type === "invoice" ? "INVOICE" : "QUOTATION" }}
         </h1>
         <div class="flex flex-col space-y-1 text-muted-foreground">
           <div class="flex">
@@ -25,13 +29,21 @@
           </div>
         </div>
       </div>
-      <div class="w-26 h-auto flex items-center justify-center overflow-hidden">
+      <div
+        class="w-48 h-auto flex flex-col items-end justify-start overflow-hidden"
+      >
         <img
           v-if="sender.logo"
           :src="sender.logo"
           alt="Logo"
-          class="max-w-full max-h-full object-contain"
+          class="max-w-[180px] max-h-[80px] object-contain"
         />
+        <h2
+          v-else-if="sender.name"
+          class="text-2xl font-bold text-primary text-right"
+        >
+          {{ sender.name }}
+        </h2>
         <svg
           v-else
           viewBox="0 0 100 100"
@@ -63,8 +75,8 @@
     <div class="border-b border-border mb-8"></div>
 
     <!-- Info Section -->
-    <div class="grid grid-cols-2 gap-6 mb-8">
-      <div class="bg-primary/10 p-5 rounded-lg">
+    <div class="flex flex-col md:flex-row gap-6 mb-8">
+      <div class="w-full md:w-1/2 bg-primary/10 p-5 rounded-lg">
         <h3 class="text-primary font-bold text-lg mb-3">Billed By</h3>
         <div class="space-y-1.5 text-foreground">
           <div v-if="sender.name">
@@ -93,7 +105,7 @@
           </div>
         </div>
       </div>
-      <div class="bg-primary/10 p-5 rounded-lg">
+      <div class="w-full md:w-1/2 bg-primary/10 p-5 rounded-lg">
         <h3 class="text-primary font-bold text-lg mb-3">Billed To</h3>
         <div class="space-y-1.5 text-foreground">
           <div>
@@ -132,25 +144,30 @@
 
     <!-- Items Table -->
     <div class="mb-12 border-b border-border overflow-x-auto">
-      <table class="w-full text-left border-collapse min-w-[500px]">
+      <table
+        class="w-full text-left border-collapse min-w-[500px]"
+        style="table-layout: fixed"
+      >
         <thead>
           <tr class="bg-primary text-primary-foreground">
             <th
-              class="py-3 px-4 font-normal text-sm border-r border-white/20 w-1/2"
+              class="py-3 px-4 font-normal text-sm border-r border-white/20 w-[50%]"
             >
               Items Detail
             </th>
             <th
-              class="py-3 px-4 font-normal text-sm text-center border-r border-white/20"
+              class="py-3 px-4 font-normal text-sm text-center border-r border-white/20 w-[15%]"
             >
               Quantity
             </th>
             <th
-              class="py-3 px-4 font-normal text-sm text-center border-r border-white/20"
+              class="py-3 px-4 font-normal text-sm text-center border-r border-white/20 w-[15%]"
             >
               Rate
             </th>
-            <th class="py-3 px-4 font-normal text-sm text-center">Amount</th>
+            <th class="py-3 px-4 font-normal text-sm text-center w-[20%]">
+              Amount
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -190,14 +207,14 @@
     </div>
 
     <!-- Footer Section -->
-    <div class="grid grid-cols-2 gap-12 mb-12">
-      <div class="bg-primary/10 p-5 rounded-lg h-fit relative">
+    <div class="flex flex-col md:flex-row gap-8 md:gap-12 mb-12">
+      <div class="w-full md:w-1/2 bg-primary/10 p-5 rounded-lg h-fit relative">
         <h3 class="text-primary font-bold text-lg pb-3 border-b border-border">
           Account Details
         </h3>
         <div class="space-y-1.5 text-foreground mt-3">
           <div>
-            <span class="font-bold text-foreground">Account Holder Name :</span>
+            <span class="font-bold text-foreground">Account Name :</span>
             {{ bank.accountName || sender.name }}
           </div>
           <div>
@@ -215,7 +232,7 @@
         </div>
       </div>
 
-      <div>
+      <div class="w-full md:w-1/2">
         <div
           class="flex justify-between border-t border-b border-border py-3 mb-6"
         >
@@ -271,7 +288,7 @@ export default defineComponent({
     profile: { type: Object, required: true },
   },
   computed: {
-    ...mapState(useSettingsStore, ['app']),
+    ...mapState(useSettingsStore, ["app"]),
     document() {
       return this.invoice;
     },
@@ -283,13 +300,13 @@ export default defineComponent({
     },
     bank() {
       return this.invoice?.bank || this.profile?.bank || {};
-    }
+    },
   },
   methods: {
     formatCurrency(val: number) {
-      const curr = this.invoice?.currency || this.app?.currency || 'USD';
+      const curr = this.invoice?.currency || this.app?.currency || "USD";
       return `${val} ${curr}`;
-    }
-  }
+    },
+  },
 });
 </script>

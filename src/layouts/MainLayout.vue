@@ -53,7 +53,7 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 flex flex-col overflow-hidden">
+    <main class="flex-1 flex flex-col overflow-hidden bg-background">
       <!-- Header -->
       <header
         class="h-auto py-3 flex items-center justify-between px-4 bg-background dark:bg-card border-b dark:border-border md:hidden"

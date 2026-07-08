@@ -62,7 +62,7 @@ export const useSettingsStore = defineStore('settings', {
   state: () => ({
     app: {
       currency: getDefaultCurrency(),
-      taxRate: 10,
+      taxRate: 0,
       invoicePrefix: 'INV-',
       quotationPrefix: 'QUO-',
       terms: 'Payment is due within 30 days. Thank you for your business!',

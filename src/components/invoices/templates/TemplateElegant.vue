@@ -30,7 +30,7 @@
     </div>
 
     <!-- Document Info & Client -->
-    <div class="flex flex-row justify-between items-start mb-12 gap-0">
+    <div class="flex flex-col md:flex-row justify-between items-start mb-12 gap-8 md:gap-0">
       <div class="space-y-4">
         <h2
           class="text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2 mb-4"
@@ -79,20 +79,20 @@
         </div>
       </div>
 
-      <div class="space-y-4 text-right w-auto">
+      <div class="space-y-4 text-left md:text-right w-full md:w-auto">
         <div
           class="text-3xl font-light tracking-widest uppercase text-foreground"
         >
           {{ type === "invoice" ? "Invoice" : "Quotation" }}
         </div>
         <div class="text-sm font-light space-y-1">
-          <div class="flex justify-end gap-4">
+          <div class="flex justify-start md:justify-end gap-4">
             <span class="text-muted-foreground">Quotation Number :</span>
             <span class="font-medium text-foreground w-24">{{
               document.invoiceNumber || document.quotationNumber
             }}</span>
           </div>
-          <div class="flex justify-end gap-4">
+          <div class="flex justify-start md:justify-end gap-4">
             <span class="text-muted-foreground">Date :</span>
             <span class="font-medium text-foreground w-24">{{
               document.date || "N/A"
@@ -100,7 +100,7 @@
           </div>
           <div
             v-if="type === 'invoice' ? document.dueDate : document.validUntil"
-            class="flex justify-end gap-4"
+            class="flex justify-start md:justify-end gap-4"
           >
             <span class="text-muted-foreground">Due Date :</span>
             <span class="font-medium text-foreground w-24">{{
@@ -113,26 +113,26 @@
 
     <!-- Items -->
     <div class="mb-12 overflow-x-auto">
-      <table class="w-full text-left border-collapse min-w-[500px]">
+      <table class="w-full text-left border-collapse min-w-[500px]" style="table-layout: fixed;">
         <thead>
           <tr>
             <th
-              class="py-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40 w-1/2"
+              class="py-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40 w-[50%]"
             >
               Item Description
             </th>
             <th
-              class="py-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40 text-center"
+              class="py-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40 text-center w-[15%]"
             >
               Qty
             </th>
             <th
-              class="py-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40 text-right"
+              class="py-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40 text-right w-[15%]"
             >
               Rate
             </th>
             <th
-              class="py-3 text-xs font-semibold uppercase tracking-widest text-foreground border-b border-border/40 text-right"
+              class="py-3 text-xs font-semibold uppercase tracking-widest text-foreground border-b border-border/40 text-right w-[20%]"
             >
               Amount
             </th>
@@ -168,7 +168,7 @@
     </div>
 
     <!-- Summary & Payment -->
-    <div class="flex flex-row justify-between items-start gap-12">
+    <div class="flex flex-col md:flex-row justify-between items-start gap-8 md:gap-12">
       <div class="flex-1 space-y-8">
         <div v-if="bank && bank.accountName">
           <h3
@@ -206,7 +206,7 @@
         </div>
       </div>
 
-      <div class="w-64">
+      <div class="w-full md:w-64">
         <div class="space-y-3 font-light text-sm">
           <div class="flex justify-between text-muted-foreground">
             <span>Subtotal</span>
@@ -238,9 +238,9 @@
 
     <!-- Footer Notes -->
     <div
-      class="mt-16 pt-8 border-t border-border/40 grid grid-cols-2 gap-8 text-xs font-light"
+      class="mt-16 pt-8 border-t border-border/40 flex flex-col md:flex-row gap-8 text-xs font-light"
     >
-      <div v-if="document.terms">
+      <div v-if="document.terms" class="w-full md:w-1/2">
         <h4
           class="font-semibold uppercase tracking-widest text-muted-foreground mb-2"
         >
@@ -250,7 +250,7 @@
           {{ document.terms }}
         </div>
       </div>
-      <div v-if="document.notes">
+      <div v-if="document.notes" class="w-full md:w-1/2">
         <h4
           class="font-semibold uppercase tracking-widest text-muted-foreground mb-2"
         >
