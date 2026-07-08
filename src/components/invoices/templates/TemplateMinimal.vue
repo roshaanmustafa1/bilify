@@ -1,7 +1,7 @@
 <template>
   <div class="bg-background p-8 font-sans max-w-[800px] mx-auto text-sm">
     <!-- Header -->
-    <div class="flex flex-col-reverse md:flex-row justify-between items-start mb-6 gap-6 md:gap-0">
+    <div class="flex flex-row justify-between items-start mb-6 gap-0">
       <div>
         <h1 class="text-3xl font-bold text-primary mb-6">
           {{ sender.name }}
@@ -63,7 +63,7 @@
     <div class="border-b border-border mb-8"></div>
 
     <!-- Info Section -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="grid grid-cols-2 gap-6 mb-8">
       <div class="bg-primary/10 p-5 rounded-lg">
         <h3 class="text-primary font-bold text-lg mb-3">Billed By</h3>
         <div class="space-y-1.5 text-foreground">
@@ -190,7 +190,7 @@
     </div>
 
     <!-- Footer Section -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-12">
+    <div class="grid grid-cols-2 gap-12 mb-12">
       <div class="bg-primary/10 p-5 rounded-lg h-fit relative">
         <h3 class="text-primary font-bold text-lg pb-3 border-b border-border">
           Account Details

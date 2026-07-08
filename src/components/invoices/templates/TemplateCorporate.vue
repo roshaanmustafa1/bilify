@@ -40,7 +40,7 @@
 
     <div class="p-6">
       <!-- Info Section -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+      <div class="grid grid-cols-2 gap-8 mb-10">
         <div class="border border-border rounded-sm">
           <div
             class="bg-muted px-4 py-2 font-bold text-foreground border-b border-border uppercase tracking-wider text-xs"
@@ -178,7 +178,7 @@
       </div>
 
       <!-- Footer Section -->
-      <div class="flex flex-col md:flex-row justify-between items-start gap-8">
+      <div class="flex flex-row justify-between items-start gap-8">
         <div class="flex-1 space-y-6">
           <div
             v-if="bank && bank.accountName"
@@ -230,7 +230,7 @@
           </div>
         </div>
 
-        <div class="w-full md:w-64 border border-border rounded-sm">
+        <div class="w-64 border border-border rounded-sm">
           <div
             class="bg-muted px-4 py-2 font-bold text-foreground border-b border-border uppercase tracking-wider text-xs"
           >
