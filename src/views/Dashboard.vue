@@ -12,7 +12,7 @@
           Manage your corporate finances with precision and ease.
         </p>
       </div>
-      <div class="flex gap-3">
+      <div class="flex gap-3 flex-wrap">
         <Button
           variant="outline"
           class="w-full md:w-auto font-medium shadow-sm hover:shadow-md transition-shadow"
