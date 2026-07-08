@@ -481,21 +481,33 @@
                     class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground"
                     >Item Name</Label
                   >
-                  <Input v-model="item.name" placeholder="Item Name" />
+                  <Input
+                    v-model="item.name"
+                    placeholder="Item Name"
+                    class="bg-background"
+                  />
                 </div>
                 <div class="col-span-4 md:col-span-2 space-y-2">
                   <Label
                     class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground"
                     >Qty</Label
                   >
-                  <Input type="number" v-model.number="item.quantity" />
+                  <Input
+                    type="number"
+                    v-model.number="item.quantity"
+                    class="bg-background"
+                  />
                 </div>
                 <div class="col-span-8 md:col-span-3 space-y-2">
                   <Label
                     class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground"
                     >Price</Label
                   >
-                  <Input type="number" v-model.number="item.price" />
+                  <Input
+                    type="number"
+                    v-model.number="item.price"
+                    class="bg-background"
+                  />
                 </div>
                 <div
                   class="col-span-12 md:col-span-2 space-y-2 flex flex-col justify-end"
@@ -565,7 +577,12 @@
                   class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground"
                   >Tax Rate (%)</Label
                 >
-                <Input type="number" v-model.number="globalTaxRate" min="0" max="100" />
+                <Input
+                  type="number"
+                  v-model.number="globalTaxRate"
+                  min="0"
+                  max="100"
+                />
               </div>
             </div>
             <div class="space-y-2 mt-4">
@@ -589,28 +606,63 @@
       <!-- Preview Side -->
       <div class="space-y-4">
         <div
-          class="flex items-center space-x-4 bg-muted dark:bg-card p-4 rounded-lg"
+          class="relative overflow-hidden flex flex-col space-y-3 bg-gradient-to-br from-primary/5 to-transparent border border-primary/20 p-5 rounded-2xl shadow-sm"
         >
-          <Label
-            class="whitespace-nowrap font-semibold text-[10px] uppercase tracking-wider text-muted-foreground"
-            >Select Template:</Label
+          <div
+            class="absolute -right-12 -top-12 w-40 h-40 bg-primary/10 rounded-full blur-3xl pointer-events-none"
+          ></div>
+          <div
+            class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4"
           >
-          <Select v-model="form.template">
-            <SelectTrigger>
-              <SelectValue placeholder="Choose a template" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="TemplateMinimal">Minimal</SelectItem>
-              <SelectItem value="TemplateCorporate">Corporate</SelectItem>
-              <SelectItem value="TemplateCreative">Creative</SelectItem>
-              <SelectItem value="TemplateElegant">Elegant</SelectItem>
-            </SelectContent>
-          </Select>
+            <div>
+              <h3
+                class="text-sm font-bold text-foreground flex items-center gap-2"
+              >
+                <Icon
+                  icon="lucide:layout-template"
+                  class="w-4 h-4 text-primary"
+                />
+                Document Template
+              </h3>
+              <p class="text-xs text-muted-foreground mt-1">
+                Choose the visual layout for your invoice.
+              </p>
+            </div>
+            <div class="w-full md:w-64 flex justify-end items-center">
+              <Select v-model="form.template">
+                <SelectTrigger
+                  class="bg-background shadow-sm border-primary/20 hover:border-primary/50 focus:ring-primary transition-colors h-10 font-medium"
+                >
+                  <SelectValue placeholder="Choose a template" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="TemplateMinimal"
+                    >Minimal (Default)</SelectItem
+                  >
+                  <SelectItem value="TemplateCorporate"
+                    >Corporate Pro</SelectItem
+                  >
+                  <SelectItem value="TemplateCreative"
+                    >Creative Studio</SelectItem
+                  >
+                  <SelectItem value="TemplateElegant"
+                    >Elegant Premium</SelectItem
+                  >
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
 
         <div class="sticky top-6">
-          <div class="bg-muted dark:bg-card p-4 rounded-lg overflow-auto max-h-[80vh] shadow-inner">
-            <InvoicePreview type="invoice" :document="computedInvoice" elementId="invoice-pdf" />
+          <div
+            class="bg-muted dark:bg-card p-4 rounded-lg overflow-auto max-h-[100vh] shadow-inner"
+          >
+            <InvoicePreview
+              type="invoice"
+              :document="computedInvoice"
+              elementId="invoice-pdf"
+            />
           </div>
         </div>
       </div>
@@ -797,17 +849,20 @@ export default defineComponent({
       const itemToCopy = form.items[index];
       form.items.splice(index + 1, 0, {
         ...itemToCopy,
-        id: Date.now().toString() + Math.random().toString(36).substring(2, 6)
+        id: Date.now().toString() + Math.random().toString(36).substring(2, 6),
       });
     };
 
     const globalTaxRate = computed({
-      get: () => form.items.length > 0 ? form.items[0].taxRate : settingsStore.app.taxRate,
+      get: () =>
+        form.items.length > 0
+          ? form.items[0].taxRate
+          : settingsStore.app.taxRate,
       set: (val: number) => {
-        form.items.forEach(item => {
+        form.items.forEach((item) => {
           item.taxRate = val || 0;
         });
-      }
+      },
     });
 
     const computedInvoice = computed(() => {

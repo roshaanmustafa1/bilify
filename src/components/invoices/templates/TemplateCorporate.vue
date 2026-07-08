@@ -4,7 +4,7 @@
   >
     <!-- Header Band -->
     <div
-      class="bg-primary text-primary-foreground p-6 flex justify-between items-start"
+      class="bg-gradient-to-r from-[#29855b] to-[#144b33] text-white p-6 flex justify-between items-start"
     >
       <div>
         <h1 class="text-3xl font-bold mb-2">

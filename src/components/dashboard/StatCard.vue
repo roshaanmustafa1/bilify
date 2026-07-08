@@ -1,79 +1,79 @@
 <template>
-  <div class="bg-background dark:bg-card overflow-hidden shadow md:shadow-md rounded-2xl md:rounded-lg p-4 md:p-5 flex flex-col md:flex-row md:items-center border md:border-transparent dark:border-border">
-    <div class="flex-shrink-0 mb-3 md:mb-0">
-      <div class="rounded-xl md:rounded-md p-2 md:p-3 w-fit" :class="bgClass">
-        <Icon :icon="icon" class="h-5 w-5 md:h-6 md:w-6" :class="iconClass" />
+  <div
+    class="bg-card text-card-foreground shadow-sm rounded-2xl p-6 flex flex-col justify-between border border-border/50 h-full relative overflow-hidden group hover:shadow-md transition-shadow"
+  >
+    <div class="flex justify-between items-start mb-4">
+      <h3 class="text-sm font-medium text-background">{{ title }}</h3>
+      <div
+        v-if="percentage"
+        :class="[
+          'px-2 py-0.5 rounded-md text-xs font-semibold',
+          percentageColor === 'green'
+            ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400'
+            : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400',
+        ]"
+      >
+        {{ percentage }}
       </div>
     </div>
-    <div class="md:ml-5 flex-1">
-      <dl>
-        <dt class="text-[11px] md:text-sm font-medium text-muted-foreground dark:text-muted-foreground truncate mb-1 md:mb-0">
-          {{ title }}
-        </dt>
-        <dd>
-          <div class="text-xl md:text-2xl font-bold text-foreground dark:text-primary-foreground">
-            {{ value }}
-          </div>
-        </dd>
-      </dl>
+
+    <div class="mb-2">
+      <div class="text-3xl font-bold tracking-tight text-background">
+        {{ value }}
+      </div>
     </div>
+
+    <div
+      v-if="trendText"
+      class="flex items-center gap-1.5 text-xs text-background mt-auto pt-2"
+    >
+      <svg
+        class="w-4 h-4 opacity-50"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+      </svg>
+      <span class="text-background">{{ trendText }}</span>
+    </div>
+
+    <!-- Decorative faint gradient spot on hover -->
+    <div
+      class="absolute -right-6 -top-6 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors pointer-events-none"
+    ></div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue'
-import { Icon } from '@iconify/vue'
+import { defineComponent } from "vue";
 
 export default defineComponent({
- name: 'StatCard',
- components: {
- Icon
- },
- props: {
- title: {
- type: String,
- required: true
- },
- value: {
- type: [String, Number],
- required: true
- },
- icon: {
- type: String,
- required: true
- },
- color: {
- type: String,
- default: 'blue'
- }
- },
-  setup(props) {
-    const bgClass = computed(() => {
-      const colors: Record<string, string> = {
-        blue: 'bg-blue-100 dark:bg-blue-900/30 md:bg-blue-500 md:dark:bg-blue-500',
-        green: 'bg-green-100 dark:bg-green-900/30 md:bg-green-500 md:dark:bg-green-500',
-        purple: 'bg-purple-100 dark:bg-purple-900/30 md:bg-purple-500 md:dark:bg-purple-500',
-        orange: 'bg-orange-100 dark:bg-orange-900/30 md:bg-orange-500 md:dark:bg-orange-500',
-        red: 'bg-red-100 dark:bg-red-900/30 md:bg-red-500 md:dark:bg-red-500'
-      }
-      return colors[props.color] || colors.blue
-    })
-
-    const iconClass = computed(() => {
-      const colors: Record<string, string> = {
-        blue: 'text-blue-600 dark:text-blue-400 md:text-white',
-        green: 'text-green-600 dark:text-green-400 md:text-white',
-        purple: 'text-purple-600 dark:text-purple-400 md:text-white',
-        orange: 'text-orange-600 dark:text-orange-400 md:text-white',
-        red: 'text-red-600 dark:text-red-400 md:text-white'
-      }
-      return colors[props.color] || colors.blue
-    })
-
-    return {
-      bgClass,
-      iconClass
-    }
-  }
-})
+  name: "StatCard",
+  props: {
+    title: {
+      type: String,
+      required: true,
+    },
+    value: {
+      type: [String, Number],
+      required: true,
+    },
+    percentage: {
+      type: String,
+      default: "",
+    },
+    percentageColor: {
+      type: String,
+      default: "green", // 'green' or 'red'
+    },
+    trendText: {
+      type: String,
+      default: "",
+    },
+  },
+});
 </script>

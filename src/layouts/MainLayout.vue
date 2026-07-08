@@ -23,8 +23,8 @@
           :class="[
             $route.path === item.path ||
             ($route.path.startsWith(item.path + '/') && item.path !== '/')
-              ? 'bg-primary/10 text-primary'
-              : 'text-foreground dark:text-muted-foreground hover:bg-muted ',
+              ? 'bg-primary text-background'
+              : 'text-foreground dark:text-muted-foreground hover:bg-primary/40 ',
           ]"
         >
           <Icon :icon="item.icon" class="mr-3 h-5 w-5" />
@@ -110,11 +110,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref, watch, onMounted } from "vue";
 import { Icon } from "@iconify/vue";
 import { useAuthStore } from "../store/auth";
 import { useRouter } from "vue-router";
-import { useDark, useToggle } from "@vueuse/core";
 
 export default defineComponent({
   name: "MainLayout",
@@ -155,14 +154,31 @@ export default defineComponent({
       router.push("/auth/login");
     };
 
-    // Ensure default light mode if user hasn't explicitly set a preference
-    if (localStorage.getItem("vueuse-color-scheme") === null) {
-      localStorage.setItem("vueuse-color-scheme", "light");
-      document.documentElement.classList.remove("dark");
-    }
+    // Purely manual dark mode (ignores OS time/settings)
+    const isDark = ref(false);
 
-    const isDark = useDark();
-    const toggleDark = useToggle(isDark);
+    onMounted(() => {
+      const stored = localStorage.getItem("app-color-scheme");
+      if (stored === "dark") {
+        isDark.value = true;
+        document.documentElement.classList.add("dark");
+      } else {
+        isDark.value = false;
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("app-color-scheme", "light");
+      }
+    });
+
+    const toggleDark = () => {
+      isDark.value = !isDark.value;
+      if (isDark.value) {
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("app-color-scheme", "dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("app-color-scheme", "light");
+      }
+    };
 
     return {
       navItems,

@@ -149,7 +149,7 @@
         style="table-layout: fixed"
       >
         <thead>
-          <tr class="bg-primary text-primary-foreground">
+          <tr class="bg-gradient-to-r from-[#29855b] to-[#144b33] text-white">
             <th
               class="py-3 px-4 font-normal text-sm border-r border-white/20 w-[50%]"
             >

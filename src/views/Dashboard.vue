@@ -1,125 +1,368 @@
 <template>
-  <div class="space-y-6">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+  <div class="space-y-8 pb-8">
+    <!-- Header -->
+    <div
+      class="flex flex-col md:flex-row md:items-center justify-between gap-6 mt-2 border-b pb-6"
+    >
       <div>
-        <h2 class="text-2xl font-bold text-foreground dark:text-primary-foreground">
-          Dashboard
+        <h2 class="text-3xl font-bold text-foreground tracking-tight">
+          Welcome back, Bilify!
         </h2>
-        <p class="text-muted-foreground md:hidden mt-1">Hello, Admin User</p>
+        <p class="text-muted-foreground mt-1 text-sm">
+          Manage your corporate finances with precision and ease.
+        </p>
       </div>
-      <div class="grid grid-cols-2 md:flex md:space-x-3 gap-3 md:gap-0">
-        <Button class="w-full md:w-auto" @click="$router.push('/invoices/create')">
-          <Icon icon="lucide:plus" class="mr-2 h-4 w-4" /> New Invoice
-        </Button>
-        <Button variant="outline" class="w-full md:w-auto" @click="$router.push('/quotations/create')">
+      <div class="flex gap-3">
+        <Button
+          variant="outline"
+          class="w-full md:w-auto font-medium shadow-sm hover:shadow-md transition-shadow"
+          @click="$router.push('/quotations/create')"
+        >
           <Icon icon="lucide:plus" class="mr-2 h-4 w-4" /> New Quotation
+        </Button>
+        <Button
+          class="w-full md:w-auto font-medium"
+          @click="$router.push('/invoices/create')"
+        >
+          <Icon icon="lucide:file-text" class="mr-2 h-4 w-4" /> New Invoice
         </Button>
       </div>
     </div>
 
-    <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Stats Row -->
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-white"
+    >
       <StatCard
         title="Total Invoices"
         :value="invoiceStore.totalInvoices"
-        icon="lucide:file-text"
-        color="blue"
+        percentage="+12.5%"
+        trendText="84 new this month"
+        class="bg-gradient-to-r from-[#29855b] to-[#144b33] text-white"
       />
       <StatCard
         title="Total Quotations"
         :value="quotationStore.totalQuotations"
-        icon="lucide:file-signature"
-        color="purple"
+        percentage="+8.2%"
+        trendText="22 pending review"
+        class="bg-gradient-to-r from-[#29855b] to-[#144b33] text-white"
       />
       <StatCard
         title="Total Customers"
         :value="customerStore.totalCustomers"
-        icon="lucide:users"
-        color="green"
+        percentage="+4.1%"
+        trendText="14 new acquisitions"
+        class="bg-gradient-to-r from-[#29855b] to-[#144b33] text-white"
       />
       <StatCard
-        title="Total Companies"
+        title="Associated Companies"
         :value="profileStore.profiles.length"
-        icon="lucide:building"
-        color="orange"
+        percentage="+2.0%"
+        percentageColor="green"
+        trendText="Multi-entity active"
+        class="bg-gradient-to-r from-[#29855b] to-[#144b33] text-white"
       />
     </div>
 
-    <!-- Recent Activity -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-      <Card>
-        <CardHeader class="flex flex-row items-center justify-between border-b md:border-none pb-4 md:pb-6">
-          <CardTitle>Recent Invoices</CardTitle>
-          <router-link to="/invoices" class="text-sm text-blue-600 dark:text-blue-400 font-medium md:hidden hover:underline">View All</router-link>
-        </CardHeader>
-        <CardContent class="pt-4 md:pt-0">
-          <div
-            v-if="invoiceStore.recentInvoices.length === 0"
-            class="text-center py-6 text-muted-foreground"
+    <!-- Middle Row: Recent Invoices & Quick Actions -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Recent Invoices (Span 2) -->
+      <div class="lg:col-span-2 flex flex-col">
+        <Card class="flex-1">
+          <CardHeader
+            class="flex flex-row items-center justify-between pb-4 border-b border-border/40"
           >
-            No invoices yet.
-          </div>
-          <div v-else class="space-y-4">
-            <div
-              v-for="inv in invoiceStore.recentInvoices"
-              :key="inv.id"
-              class="flex items-center justify-between p-4 border rounded-xl md:rounded-lg dark:border-border bg-muted/30 md:bg-transparent"
+            <div>
+              <CardTitle class="text-xl">Recent Invoices</CardTitle>
+              <p class="text-xs text-muted-foreground mt-1">
+                Last 10 transactions processed across all entities.
+              </p>
+            </div>
+            <router-link
+              to="/invoices"
+              class="text-sm font-semibold hover:underline text-primary"
+              >View All</router-link
             >
-              <div class="flex items-center gap-3 md:gap-0">
-                <div class="md:hidden bg-background border p-2 rounded-full flex items-center justify-center">
-                  <Icon icon="lucide:receipt" class="h-5 w-5 text-foreground" />
-                </div>
-                <div>
-                  <p class="font-medium text-foreground">{{ inv.invoiceNumber }}</p>
-                  <p class="text-sm text-muted-foreground">
-                    {{ getCustomerName(inv.customerId) }}
-                  </p>
-                </div>
-              </div>
-              <div class="text-right flex flex-col items-end">
-                <p class="font-medium md:font-bold text-foreground">{{ formatCurrency(inv.total) }}</p>
-                <Badge
-                  :variant="inv.status === 'Paid' ? 'default' : 'secondary'"
-                  class="mt-1"
-                  >{{ inv.status }}</Badge
+          </CardHeader>
+          <CardContent class="p-0">
+            <div
+              v-if="invoiceStore.recentInvoices.length === 0"
+              class="text-center py-10 text-muted-foreground text-sm"
+            >
+              No invoices yet.
+            </div>
+            <div v-else class="overflow-x-auto">
+              <table class="w-full text-sm text-left">
+                <thead
+                  class="text-[10px] uppercase text-muted-foreground bg-muted/30"
                 >
+                  <tr class="border-b bg-accent">
+                    <th class="px-6 py-4 font-semibold tracking-wider border-b">
+                      Client / ID
+                    </th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">
+                      Issue Date
+                    </th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">
+                      Amount
+                    </th>
+                    <th class="px-6 py-4 font-semibold tracking-wider">
+                      Status
+                    </th>
+                    <th
+                      class="px-6 py-4 font-semibold tracking-wider text-right"
+                    >
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-border/40">
+                  <tr
+                    v-for="inv in invoiceStore.recentInvoices"
+                    :key="inv.id"
+                    class="hover:bg-muted/30 transition-colors border-b"
+                  >
+                    <td class="px-6 py-4">
+                      <p class="font-semibold text-foreground">
+                        {{ getCustomerName(inv.customerId) }}
+                      </p>
+                      <p class="text-xs text-muted-foreground mt-0.5">
+                        {{ inv.invoiceNumber }}
+                      </p>
+                    </td>
+                    <td class="px-6 py-4 text-muted-foreground">
+                      {{ inv.date }}
+                    </td>
+                    <td class="px-6 py-4 font-bold text-foreground">
+                      {{ formatCurrency(inv.total) }}
+                    </td>
+                    <td class="px-6 py-4">
+                      <Badge
+                        :variant="
+                          inv.status === 'Paid' ? 'default' : 'secondary'
+                        "
+                        :class="
+                          inv.status === 'Paid'
+                            ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                            : inv.status === 'Overdue'
+                              ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                              : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                        "
+                      >
+                        {{ inv.status.toUpperCase() }}
+                      </Badge>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        class="h-8 w-8 rounded-full"
+                      >
+                        <Icon icon="lucide:more-horizontal" class="h-4 w-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <!-- Quick Actions (Span 1) -->
+      <div class="space-y-6 flex flex-col">
+        <Card>
+          <CardHeader>
+            <CardTitle class="text-xl">Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent class="grid grid-cols-2 gap-4">
+            <button
+              @click="$router.push('/customers')"
+              class="flex flex-col items-center justify-center p-5 border border-border/50 rounded-2xl bg-muted/20 hover:bg-primary/40 transition-colors gap-3 group"
+            >
+              <Icon
+                icon="lucide:user-plus"
+                class="h-8 w-8 text-foreground/70 group-hover:text-primary transition-colors"
+              />
+              <span class="text-xs font-semibold text-center leading-tight"
+                >New<br />Customer</span
+              >
+            </button>
+            <button
+              @click="openAI"
+              class="flex flex-col items-center justify-center p-5 border border-border/50 rounded-2xl bg-muted/20 hover:bg-primary/40 transition-colors gap-3 group"
+            >
+              <Icon
+                icon="lucide:bot"
+                class="h-8 w-8 text-foreground/70 group-hover:text-primary transition-colors"
+              />
+              <span class="text-xs font-semibold text-center leading-tight"
+                >AI<br />Assistant</span
+              >
+            </button>
+            <button
+              class="flex flex-col items-center justify-center p-5 border border-border/50 rounded-2xl bg-muted/20 hover:bg-primary/40 transition-colors gap-3 group"
+            >
+              <Icon
+                icon="lucide:bar-chart-3"
+                class="h-8 w-8 text-foreground/70 group-hover:text-primary transition-colors"
+              />
+              <span class="text-xs font-semibold text-center leading-tight"
+                >Tax<br />Report</span
+              >
+            </button>
+            <button
+              class="flex flex-col items-center justify-center p-5 border border-border/50 rounded-2xl bg-muted/20 hover:bg-primary/40 transition-colors gap-3 group"
+            >
+              <Icon
+                icon="lucide:file-up"
+                class="h-8 w-8 text-foreground/70 group-hover:text-primary transition-colors"
+              />
+              <span class="text-xs font-semibold text-center leading-tight"
+                >Import<br />CSV</span
+              >
+            </button>
+          </CardContent>
+        </Card>
+
+        <!-- Exclusive Promotional Banner -->
+        <div
+          class="relative overflow-hidden rounded-3xl bg-[#0f172a] text-white p-8 shadow-xl flex-1 flex flex-col justify-center border border-border/10"
+        >
+          <!-- Abstract Background Graphic -->
+          <div class="absolute inset-0 opacity-40 pointer-events-none">
+            <div
+              class="absolute -right-20 -bottom-20 w-64 h-64 bg-[#10b981] rounded-full blur-[80px]"
+            ></div>
+            <div
+              class="absolute -left-10 top-10 w-40 h-40 bg-[#3b82f6] rounded-full blur-[60px]"
+            ></div>
+          </div>
+          <div class="relative z-10">
+            <span
+              class="inline-block px-2.5 py-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-md text-[10px] font-bold tracking-widest uppercase mb-4"
+              >Exclusive</span
+            >
+            <h3 class="text-2xl font-bold leading-tight mb-3">
+              Professional<br />Financial Control
+            </h3>
+            <p class="text-xs text-white/70 mb-6 max-w-[200px] leading-relaxed">
+              Unlock multi-currency support and advanced analytics dashboards
+              with our Pro Suite.
+            </p>
+            <button
+              class="flex items-center justify-center bg-[#10b981] hover:bg-[#059669] text-white font-medium rounded-full px-6 py-2.5 text-sm shadow-lg shadow-[#10b981]/20 transition-all w-fit group"
+            >
+              Get Started
+              <Icon
+                icon="lucide:arrow-right"
+                class="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform"
+              />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Row: Team & Sync Status -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <Card>
+        <CardHeader
+          class="flex flex-row items-center justify-between pb-4 border-b border-border/40"
+        >
+          <CardTitle class="text-xl">Team Activity</CardTitle>
+          <Button variant="ghost" size="icon" class="h-8 w-8 rounded-full">
+            <Icon icon="lucide:user-plus" class="h-4 w-4" />
+          </Button>
+        </CardHeader>
+        <CardContent class="space-y-6 pt-6">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <img
+                src="https://i.pravatar.cc/150?img=47"
+                alt="Avatar"
+                class="w-10 h-10 rounded-full border shadow-sm object-cover"
+              />
+              <div>
+                <p class="font-semibold text-sm">Alexandra Deff</p>
+                <p class="text-xs text-muted-foreground">
+                  Reviewing Arc Invoice
+                </p>
               </div>
             </div>
+            <Badge
+              variant="secondary"
+              class="bg-green-100/50 text-green-700 hover:bg-green-100 uppercase text-[9px] px-2 py-0.5 tracking-wider border-green-200"
+              >Active</Badge
+            >
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <img
+                src="https://i.pravatar.cc/150?img=11"
+                alt="Avatar"
+                class="w-10 h-10 rounded-full border shadow-sm object-cover"
+              />
+              <div>
+                <p class="font-semibold text-sm">Edwin Adenike</p>
+                <p class="text-xs text-muted-foreground">
+                  Generating Tax Summary
+                </p>
+              </div>
+            </div>
+            <Badge
+              variant="secondary"
+              class="bg-gray-100 text-gray-600 hover:bg-gray-200 uppercase text-[9px] px-2 py-0.5 tracking-wider"
+              >Away</Badge
+            >
           </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button
-              @click="$router.push('/customers')"
-              class="p-4 border dark:border-border rounded-xl md:rounded-lg flex items-center md:flex-col md:justify-center gap-4 md:gap-2 hover:bg-muted dark:hover:bg-card transition-colors text-left md:text-center"
-            >
-              <div class="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl md:bg-transparent md:p-0">
-                <Icon icon="lucide:users" class="h-6 w-6 md:h-8 md:w-8 text-blue-600 dark:text-blue-400 md:text-blue-500" />
-              </div>
-              <div>
-                <div class="font-medium">Manage Customers</div>
-                <div class="text-xs text-muted-foreground md:hidden mt-0.5">Update contact details and history</div>
-              </div>
-            </button>
-            <button
-              @click="openAI"
-              class="p-4 border dark:border-border rounded-xl md:rounded-lg flex items-center md:flex-col md:justify-center gap-4 md:gap-2 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors text-left md:text-center"
-            >
-              <div class="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-xl md:bg-transparent md:p-0">
-                <Icon icon="lucide:bot" class="h-6 w-6 md:h-8 md:w-8 text-purple-600 dark:text-purple-400 md:text-purple-500" />
-              </div>
-              <div>
-                <div class="font-medium">AI Assistant</div>
-                <div class="text-xs text-muted-foreground md:hidden mt-0.5">Automate tasks and insights</div>
-              </div>
-            </button>
+      <Card class="flex flex-col justify-center">
+        <CardContent class="flex items-center justify-between p-8">
+          <div class="flex items-center gap-6">
+            <div class="relative w-20 h-20 flex items-center justify-center">
+              <svg class="absolute inset-0 w-full h-full transform -rotate-90">
+                <circle
+                  cx="40"
+                  cy="40"
+                  r="36"
+                  stroke="currentColor"
+                  stroke-width="6"
+                  fill="transparent"
+                  class="text-muted"
+                />
+                <circle
+                  cx="40"
+                  cy="40"
+                  r="36"
+                  stroke="currentColor"
+                  stroke-width="6"
+                  fill="transparent"
+                  class="text-primary"
+                  stroke-dasharray="226"
+                  stroke-dashoffset="56"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <span class="font-bold text-lg text-foreground">75%</span>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold mb-1">Cloud Sync Status</h3>
+              <p
+                class="text-sm text-muted-foreground max-w-[200px] leading-snug"
+              >
+                Last synced 2 minutes ago. All systems operational across 4
+                nodes.
+              </p>
+            </div>
           </div>
+          <Button
+            variant="secondary"
+            class="font-semibold px-6 bg-muted/50 hover:bg-muted"
+            >Refresh<br />Nodes</Button
+          >
         </CardContent>
       </Card>
     </div>
