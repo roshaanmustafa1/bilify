@@ -3,7 +3,7 @@
     class="bg-card text-card-foreground shadow-sm rounded-2xl p-6 flex flex-col justify-between border border-border/50 h-full relative overflow-hidden group hover:shadow-md transition-shadow"
   >
     <div class="flex justify-between items-start mb-4">
-      <h3 class="text-sm font-medium text-background">{{ title }}</h3>
+      <h3 class="text-xl font-medium text-background">{{ title }}</h3>
       <div
         v-if="percentage"
         :class="[
