@@ -30,7 +30,7 @@ export interface Invoice {
   total: number
   notes: string
   terms: string
-  status: 'Draft' | 'Sent' | 'Paid' | 'Overdue'
+  status: 'Draft' | 'Saved' | 'Sent' | 'Paid' | 'Overdue'
   template?: string
 }
 

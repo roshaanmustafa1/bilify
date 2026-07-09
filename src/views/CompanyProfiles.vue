@@ -176,10 +176,7 @@
 
         <DialogFooter>
           <Button variant="outline" @click="isModalOpen = false">Cancel</Button>
-          <Button @click="handleSaveProfile" :disabled="isSaving">
-            <span v-if="isSaving">Saving...</span>
-            <span v-else>Save Profile</span>
-          </Button>
+          <Button @click="handleSaveProfile" :loading="isSaving">Save Profile</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

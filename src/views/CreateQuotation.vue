@@ -20,15 +20,25 @@
           <span class="md:hidden lg:inline">Use AI Assistant</span
           ><span class="hidden md:inline lg:hidden">AI</span>
         </Button>
-        <Button class="w-full md:w-auto" @click="saveQuotation">
-          <Icon icon="lucide:save" class="mr-2 h-4 w-4" /> Save
+        <Button
+          class="w-full md:w-auto"
+          @click="saveQuotation"
+          :loading="isSaving"
+        >
+          <Icon icon="lucide:save" class="mr-2 h-4 w-4" v-if="!isSaving" /> Save
         </Button>
         <Button
           variant="secondary"
           class="w-full md:w-auto"
           @click="downloadPDF"
+          :loading="isGeneratingPDF"
         >
-          <Icon icon="lucide:download" class="mr-2 h-4 w-4" /> Download PDF
+          <Icon
+            icon="lucide:download"
+            class="mr-2 h-4 w-4"
+            v-if="!isGeneratingPDF"
+          />
+          Download PDF
         </Button>
       </div>
     </div>
@@ -668,6 +678,25 @@
       </div>
     </div>
 
+    <!-- Leave Confirmation Dialog -->
+    <Dialog v-model:open="isLeaveDialogOpen">
+      <DialogContent class="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Unsaved Changes</DialogTitle>
+          <p class="text-sm text-muted-foreground mt-2">
+            You have unsaved changes. Do you want to leave? Your progress will be saved as a draft.
+          </p>
+        </DialogHeader>
+        <DialogFooter class="mt-6 sm:justify-between flex-row justify-between w-full">
+          <Button variant="outline" @click="handleCancelLeave">Cancel</Button>
+          <div class="space-x-2">
+            <Button variant="destructive" @click="handleDiscardLeave">Discard</Button>
+            <Button variant="default" @click="handleConfirmLeave">Save Draft</Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
     <AIAssistantModal
       v-model:open="isAIModalOpen"
       @generated="handleAIGenerated"
@@ -677,7 +706,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive, computed, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter, useRoute, onBeforeRouteLeave } from "vue-router";
 import { Icon } from "@iconify/vue";
 import { format, addDays } from "date-fns";
 import { useQuotationStore, Quotation } from "../store/quotation";
@@ -707,6 +736,7 @@ import {
 } from "../components/ui/select";
 import InvoicePreview from "../components/invoices/InvoicePreview.vue";
 import AIAssistantModal from "../components/invoices/AIAssistantModal.vue";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../components/ui/dialog";
 
 export default defineComponent({
   name: "CreateQuotation",
@@ -727,6 +757,11 @@ export default defineComponent({
     SelectValue,
     InvoicePreview,
     AIAssistantModal,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter
   },
   setup() {
     const router = useRouter();
@@ -738,6 +773,36 @@ export default defineComponent({
 
     const isEdit = ref(false);
     const isAIModalOpen = ref(false);
+    const isSaving = ref(false);
+    const isGeneratingPDF = ref(false);
+    const isLeaveDialogOpen = ref(false);
+    let leaveDialogResolve: ((value: 'cancel' | 'discard' | 'save') => void) | null = null;
+
+    const showLeaveDialog = () => {
+      isLeaveDialogOpen.value = true;
+      return new Promise<'cancel' | 'discard' | 'save'>((resolve) => {
+        leaveDialogResolve = resolve;
+      });
+    };
+
+    const handleConfirmLeave = () => {
+      if (!form.customerId) {
+        alert("Please select a customer before saving a draft.");
+        return;
+      }
+      isLeaveDialogOpen.value = false;
+      if (leaveDialogResolve) leaveDialogResolve('save');
+    };
+
+    const handleDiscardLeave = () => {
+      isLeaveDialogOpen.value = false;
+      if (leaveDialogResolve) leaveDialogResolve('discard');
+    };
+
+    const handleCancelLeave = () => {
+      isLeaveDialogOpen.value = false;
+      if (leaveDialogResolve) leaveDialogResolve('cancel');
+    };
 
     const form = reactive({
       id: "",
@@ -923,6 +988,8 @@ export default defineComponent({
       // Update global defaults for next time
       settingsStore.updateApp({ currency: form.currency });
 
+      form.status = 'Saved';
+      isSaving.value = true;
       try {
         if (isEdit.value) {
           await quotationStore.updateQuotation(
@@ -937,11 +1004,66 @@ export default defineComponent({
         router.push("/quotations");
       } catch (e: any) {
         alert(e.message || "Error saving quotation");
+      } finally {
+        isSaving.value = false;
       }
     };
 
-    const downloadPDF = () => {
-      generatePDF("quotation-pdf", `${form.quotationNumber}.pdf`);
+    // Auto-save as Draft when navigating away without explicitly saving
+    onBeforeRouteLeave(async (to, from, next) => {
+      if (isSaving.value || form.status === 'Saved') {
+        next();
+        return;
+      }
+      
+      const hasItems = form.items.length > 0 && form.items.some(i => i.name || i.price > 0);
+      
+      if (hasItems) {
+        const action = await showLeaveDialog();
+        if (action === 'cancel') {
+          next(false);
+          return;
+        }
+        if (action === 'discard') {
+          next();
+          return;
+        }
+
+        if (!isEdit.value) {
+          try {
+            form.status = 'Draft';
+            const payload = computedQuotation.value as any;
+            delete payload.id;
+            await quotationStore.addQuotation(payload);
+          } catch {
+            // silently fail
+          }
+        } else if (isEdit.value && form.status !== 'Saved') {
+          try {
+            form.status = 'Draft';
+            await quotationStore.updateQuotation(form.id, computedQuotation.value as any);
+          } catch {
+            // silently fail
+          }
+        }
+      }
+      next();
+    });
+
+    const downloadPDF = async () => {
+      isGeneratingPDF.value = true;
+      try {
+        await generatePDF(
+          computedQuotation.value as Record<string, unknown>,
+          form.template || "TemplateMinimal",
+          "quotation",
+          `${form.quotationNumber}.pdf`,
+        );
+      } catch (e: any) {
+        alert(e.message || "Error generating PDF");
+      } finally {
+        isGeneratingPDF.value = false;
+      }
     };
 
     const openAIAssistant = () => {
@@ -1012,10 +1134,16 @@ export default defineComponent({
       applyProfile,
       downloadPDF,
       isAIModalOpen,
+      isSaving,
+      isGeneratingPDF,
       openAIAssistant,
       handleAIGenerated,
       formatCurrency,
       handleLogoUpload,
+      isLeaveDialogOpen,
+      handleConfirmLeave,
+      handleCancelLeave,
+      handleDiscardLeave,
     };
   },
 });

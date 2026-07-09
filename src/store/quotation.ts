@@ -22,7 +22,7 @@ export interface Quotation {
   total: number
   notes: string
   terms: string
-  status: 'Draft' | 'Sent' | 'Accepted' | 'Rejected'
+  status: 'Draft' | 'Saved' | 'Sent' | 'Accepted' | 'Rejected'
   template?: string
 }
 

@@ -33,13 +33,16 @@
       <div class="flex items-center justify-between md:justify-end md:space-x-6 w-full md:w-auto pt-4 md:pt-0 border-t md:border-none border-border">
         <div class="flex flex-col md:items-end gap-1 md:gap-0 text-left md:text-right">
           <p class="font-bold text-lg text-foreground">{{ formatCurrency(inv.total) }}</p>
-          <Badge :variant="inv.status === 'Paid' ? 'default' : inv.status === 'Draft' ? 'outline' : 'secondary'" class="w-fit">
+          <Badge :variant="inv.status === 'Paid' ? 'default' : inv.status === 'Draft' ? 'outline' : inv.status === 'Saved' ? 'secondary' : 'secondary'" class="w-fit">
             {{ inv.status }}
           </Badge>
         </div>
         <div class="flex items-center space-x-2">
           <Button variant="ghost" size="icon" @click="viewInvoice(inv.id || '')">
             <Icon icon="lucide:eye" class="h-5 w-5 text-muted-foreground" />
+          </Button>
+          <Button variant="ghost" size="icon" @click="editInvoice(inv.id || '')">
+            <Icon icon="lucide:edit" class="h-5 w-5 text-muted-foreground" />
           </Button>
           <Button variant="ghost" size="icon" class="text-destructive hover:text-destructive/90 hover:bg-destructive/10" @click="invoiceStore.deleteInvoice(inv.id || '')">
             <Icon icon="lucide:trash" class="h-5 w-5" />
@@ -88,8 +91,10 @@ export default defineComponent({
  }
  
  const viewInvoice = (id: string) => {
- // For now we'll route to create but this should ideally route to a view page or open a modal.
- // We will create a view or just edit. We route to create with ID to edit.
+ // Placeholder for future view logic
+ }
+
+ const editInvoice = (id: string) => {
  router.push(`/invoices/create?id=${id}`)
  }
 
@@ -97,7 +102,8 @@ export default defineComponent({
  invoiceStore,
  getCustomerName,
  formatCurrency,
- viewInvoice
+ viewInvoice,
+ editInvoice
  }
  }
 })

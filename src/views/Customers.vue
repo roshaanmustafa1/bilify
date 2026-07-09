@@ -77,7 +77,7 @@
             </Card>
           </div>
           <DialogFooter>
-            <Button @click="saveCustomer">Save</Button>
+            <Button @click="saveCustomer" :loading="isSaving">Save</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -160,6 +160,7 @@ export default defineComponent({
     const customerStore = useCustomerStore();
     const isDialogOpen = ref(false);
     const editingId = ref<string | null>(null);
+    const isSaving = ref(false);
 
     onMounted(() => {
       customerStore.fetchCustomers();
@@ -189,13 +190,20 @@ export default defineComponent({
     };
 
     const saveCustomer = async () => {
-      if (editingId.value) {
-        await customerStore.updateCustomer(editingId.value, form);
-      } else {
-        await customerStore.addCustomer(form);
+      isSaving.value = true;
+      try {
+        if (editingId.value) {
+          await customerStore.updateCustomer(editingId.value, form);
+        } else {
+          await customerStore.addCustomer(form);
+        }
+        isDialogOpen.value = false;
+        resetForm();
+      } catch (e) {
+        console.error("Error saving customer", e);
+      } finally {
+        isSaving.value = false;
       }
-      isDialogOpen.value = false;
-      resetForm();
     };
 
     return {
@@ -205,6 +213,7 @@ export default defineComponent({
       form,
       editCustomer,
       saveCustomer,
+      isSaving,
     };
   },
 });

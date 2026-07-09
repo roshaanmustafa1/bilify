@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-background p-8 font-sans max-w-[800px] mx-auto text-sm">
+  <div class="bg-background p-6 font-sans max-w-[800px] mx-auto text-sm">
     <div class="flex flex-row justify-between items-start mb-6 gap-0">
       <div>
         <h1

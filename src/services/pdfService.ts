@@ -1,95 +1,65 @@
-import html2pdf from 'html2pdf.js'
+// src/services/pdfService.ts
+// Calls the Supabase Edge Function which uses Browserless (Puppeteer) for
+// server-side, viewport-independent PDF generation — identical output on
+// mobile and desktop.
 
-export const generatePDF = (elementId: string, filename: string = 'document.pdf'): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    const element = document.getElementById(elementId)
-    if (!element) {
-      console.error(`Element with id ${elementId} not found.`)
-      return reject(new Error('Element not found'))
-    }
+const SUPABASE_URL = (import.meta as any).env.VITE_SUPABASE_URL as string
+const SUPABASE_ANON_KEY = (
+  (import.meta as any).env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  (import.meta as any).env.VITE_SUPABASE_ANON_KEY
+) as string
 
-    const opt = {
-      margin: 10,
-      filename: filename,
-      image: { type: 'jpeg' as const, quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        // Simulate a 1024px desktop viewport so Tailwind md:/lg: classes activate
-        windowWidth: 1024,
-        onclone: (clonedDoc: Document, clonedEl: HTMLElement) => {
-          // ─────────────────────────────────────────────────────────────────
-          // STEP 1: Inject CSS overrides into the cloned document.
-          // Since CSS media queries are evaluated against the real browser
-          // viewport (not windowWidth), we must force desktop layout via
-          // !important rules regardless of the physical screen width.
-          // ─────────────────────────────────────────────────────────────────
-          const styleEl = clonedDoc.createElement('style')
-          styleEl.textContent = `
-            /* Force the invoice root to desktop width */
-            #${elementId} {
-              width: 800px !important;
-              min-width: 800px !important;
-              max-width: 800px !important;
-              max-height: none !important;
-              overflow: visible !important;
-            }
-            /* Force first child (template root) to full width */
-            #${elementId} > * {
-              width: 100% !important;
-              max-width: 800px !important;
-              min-width: 0 !important;
-            }
-            /* Prevent flex items from wrapping or stacking vertically */
-            #${elementId} .flex {
-              flex-wrap: nowrap !important;
-            }
-            #${elementId} .flex-col {
-              flex-direction: column !important;
-            }
-            #${elementId} .flex-row {
-              flex-direction: row !important;
-            }
-            /* Restore half-width columns (Billed By / Billed To, Account Details / Totals) */
-            #${elementId} .w-1\\/2 {
-              width: 50% !important;
-            }
-            /* Ensure table renders at full width and doesn't collapse */
-            #${elementId} table {
-              width: 100% !important;
-              min-width: 500px !important;
-            }
-            /* Clear overflow on the table wrapper */
-            #${elementId} .overflow-x-auto {
-              overflow: visible !important;
-            }
-          `
-          clonedDoc.head.appendChild(styleEl)
+/**
+ * Generate a PDF via Browserless (server-side Chromium).
+ *
+ * @param invoiceData  The full computed invoice/quotation object
+ * @param templateName One of: 'TemplateMinimal' | 'TemplateCorporate' | 'TemplateCreative' | 'TemplateElegant'
+ * @param type         'invoice' or 'quotation'
+ * @param filename     Filename for the downloaded PDF
+ */
+export const generatePDF = async (
+  invoiceData: Record<string, unknown>,
+  templateName: string = 'TemplateMinimal',
+  type: 'invoice' | 'quotation' = 'invoice',
+  filename: string = 'document.pdf'
+): Promise<void> => {
+  const edgeFnUrl = `${SUPABASE_URL}/functions/v1/generate-pdf`
 
-          // ─────────────────────────────────────────────────────────────────
-          // STEP 2: Clear overflow / max-height on every ancestor so the
-          // full invoice height is rendered without any clipping.
-          // ─────────────────────────────────────────────────────────────────
-          let parent = clonedEl.parentElement
-          while (parent && parent.tagName !== 'BODY') {
-            parent.style.maxHeight = 'none'
-            parent.style.overflow = 'visible'
-            parent.style.height = 'auto'
-            parent.style.width = 'auto'
-            parent = parent.parentElement
-          }
-        }
+  let response: Response
+  try {
+    response = await fetch(edgeFnUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_ANON_KEY,
       },
-      jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
-    }
+      body: JSON.stringify({ invoiceData, templateName, type }),
+    })
+  } catch (networkErr: unknown) {
+    const msg = networkErr instanceof Error ? networkErr.message : String(networkErr)
+    throw new Error(`Network error calling PDF service: ${msg}`)
+  }
 
-    html2pdf().set(opt).from(element).save()
-      .then(() => resolve())
-      .catch((error: any) => {
-        console.error('Error generating PDF:', error)
-        reject(error)
-      })
-  })
+  if (!response.ok) {
+    let detail = ''
+    try {
+      const json = await response.json()
+      detail = json.error || json.details || JSON.stringify(json)
+    } catch {
+      detail = await response.text()
+    }
+    throw new Error(`PDF generation failed (${response.status}): ${detail}`)
+  }
+
+  // Download the returned PDF blob
+  const blob = await response.blob()
+  const url  = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href     = url
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
 }

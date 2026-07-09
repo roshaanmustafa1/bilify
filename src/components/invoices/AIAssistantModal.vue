@@ -25,9 +25,8 @@
  
  <DialogFooter>
  <Button variant="outline" @click="$emit('update:open', false)" :disabled="loading">Cancel</Button>
- <Button class="bg-purple-600 hover:bg-purple-700 text-primary-foreground" @click="handleGenerate" :disabled="loading || !prompt">
- <Icon v-if="loading" icon="lucide:loader-2" class="mr-2 h-4 w-4 animate-spin" />
- <Icon v-else icon="lucide:wand-2" class="mr-2 h-4 w-4" />
+ <Button class="bg-purple-600 hover:bg-purple-700 text-primary-foreground" @click="handleGenerate" :disabled="!prompt" :loading="loading">
+ <Icon icon="lucide:wand-2" class="mr-2 h-4 w-4" v-if="!loading" />
  {{ loading ? 'Generating...' : 'Generate' }}
  </Button>
  </DialogFooter>

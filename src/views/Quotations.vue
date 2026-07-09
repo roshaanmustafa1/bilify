@@ -33,13 +33,16 @@
       <div class="flex items-center justify-between md:justify-end md:space-x-6 w-full md:w-auto pt-4 md:pt-0 border-t md:border-none border-border">
         <div class="flex flex-col md:items-end gap-1 md:gap-0 text-left md:text-right">
           <p class="font-bold text-lg text-foreground">{{ formatCurrency(quo.total) }}</p>
-          <Badge :variant="quo.status === 'Accepted' ? 'default' : quo.status === 'Rejected' ? 'destructive' : 'outline'" class="w-fit">
+          <Badge :variant="quo.status === 'Accepted' ? 'default' : quo.status === 'Rejected' ? 'destructive' : quo.status === 'Saved' ? 'secondary' : 'outline'" class="w-fit">
             {{ quo.status }}
           </Badge>
         </div>
         <div class="flex items-center space-x-2">
           <Button variant="ghost" size="icon" @click="viewQuotation(quo.id || '')">
             <Icon icon="lucide:eye" class="h-5 w-5 text-muted-foreground" />
+          </Button>
+          <Button variant="ghost" size="icon" @click="editQuotation(quo.id || '')">
+            <Icon icon="lucide:edit" class="h-5 w-5 text-muted-foreground" />
           </Button>
           <Button variant="ghost" size="icon" class="text-destructive hover:text-destructive/90 hover:bg-destructive/10" @click="quotationStore.deleteQuotation(quo.id || '')">
             <Icon icon="lucide:trash" class="h-5 w-5" />
@@ -88,6 +91,10 @@ export default defineComponent({
  }
  
  const viewQuotation = (id: string) => {
+ // Placeholder for future view logic
+ }
+
+ const editQuotation = (id: string) => {
  router.push(`/quotations/create?id=${id}`)
  }
 
@@ -95,7 +102,8 @@ export default defineComponent({
  quotationStore,
  getCustomerName,
  formatCurrency,
- viewQuotation
+ viewQuotation,
+ editQuotation
  }
  }
 })
