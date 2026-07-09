@@ -12,26 +12,32 @@ export const generatePDF = (elementId: string, filename: string = 'document.pdf'
       margin: 10,
       filename: filename,
       image: { type: 'jpeg' as const, quality: 0.98 },
-      html2canvas: { 
+      html2canvas: {
         scale: 2,
         useCORS: true,
         allowTaint: true,
         logging: false,
-        // Capture in-place so CSS variables, styles, and layout are fully resolved
-        onclone: (clonedDoc: Document) => {
-          const clonedEl = clonedDoc.getElementById(elementId)
-          if (clonedEl) {
-            // Override any max-height or overflow constraints from parent containers
-            clonedEl.style.maxHeight = 'none'
-            clonedEl.style.overflow = 'visible'
-            // Walk up and clear any constraining styles on parent nodes inside the cloned doc
-            let parent = clonedEl.parentElement
-            while (parent && parent !== clonedDoc.body) {
-              parent.style.maxHeight = 'none'
-              parent.style.overflow = 'visible'
-              parent.style.height = 'auto'
-              parent = parent.parentElement
-            }
+        // Tell html2canvas to simulate a 1024px wide viewport so Tailwind
+        // desktop breakpoints (md:, lg:) are triggered even on mobile devices.
+        windowWidth: 1024,
+        onclone: (_clonedDoc: Document, clonedEl: HTMLElement) => {
+          // Force the invoice element itself to desktop width so the template
+          // renders identically on mobile and desktop.
+          clonedEl.style.width = '800px'
+          clonedEl.style.minWidth = '800px'
+          clonedEl.style.maxWidth = '800px'
+          clonedEl.style.maxHeight = 'none'
+          clonedEl.style.overflow = 'visible'
+
+          // Clear overflow / height constraints on every ancestor up to <body>
+          // so nothing clips the content during canvas rendering.
+          let parent = clonedEl.parentElement
+          while (parent && parent.tagName !== 'BODY') {
+            parent.style.maxHeight = 'none'
+            parent.style.overflow = 'visible'
+            parent.style.height = 'auto'
+            parent.style.width = 'auto'
+            parent = parent.parentElement
           }
         }
       },
