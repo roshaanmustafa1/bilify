@@ -96,7 +96,7 @@ export default defineComponent({
       required: true,
     },
     document: {
-      type: Object,
+      type: Object as () => Record<string, any> | null,
       default: null,
     },
   },
