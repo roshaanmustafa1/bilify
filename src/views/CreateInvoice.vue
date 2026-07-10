@@ -1011,7 +1011,7 @@ export default defineComponent({
     };
 
     // Auto-save as Draft when navigating away without explicitly saving
-    onBeforeRouteLeave(async (to, from, next) => {
+    onBeforeRouteLeave(async (_to, _from, next) => {
       if (isSaving.value || form.status === 'Saved') {
         next();
         return;
@@ -1039,7 +1039,7 @@ export default defineComponent({
           } catch {
             // silently fail
           }
-        } else if (isEdit.value && form.status !== 'Saved') {
+        } else if (isEdit.value && (form.status as any) !== 'Saved') {
           try {
             form.status = 'Draft';
             await invoiceStore.updateInvoice(form.id, computedInvoice.value as any);

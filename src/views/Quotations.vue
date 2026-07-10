@@ -90,7 +90,7 @@ export default defineComponent({
  return new Intl.NumberFormat('en-US', { style: 'currency', currency: settingsStore.app.currency }).format(val)
  }
  
- const viewQuotation = (id: string) => {
+ const viewQuotation = (_id: string) => {
  // Placeholder for future view logic
  }
 
