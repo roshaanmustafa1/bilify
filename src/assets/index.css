@@ -34,6 +34,8 @@
     --radius-md: calc(var(--radius) - 2px);
     --radius-lg: var(--radius);
     --radius-xl: calc(var(--radius) + 4px);
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
 }
 
 :root {
@@ -56,6 +58,8 @@
     --input: #e2e8f0;
     --ring: #064e3b;
     --radius: 0.75rem;
+    --success: #22c55e;
+    --success-foreground: #ffffff;
 }
 
 .dark .force-light, .force-light {
@@ -78,6 +82,8 @@
     --input: #e2e8f0;
     --ring: #064e3b;
     --radius: 0.75rem;
+    --success: #22c55e;
+    --success-foreground: #ffffff;
 }
 
 .dark {
@@ -100,6 +106,8 @@
     --input: #333333;
     --ring: #10b981;
     --radius: 0.75rem;
+    --success: #22c55e;
+    --success-foreground: #ffffff;
 }
 
 @layer base {

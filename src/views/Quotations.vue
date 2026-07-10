@@ -33,12 +33,12 @@
       <div class="flex items-center justify-between md:justify-end md:space-x-6 w-full md:w-auto pt-4 md:pt-0 border-t md:border-none border-border">
         <div class="flex flex-col md:items-end gap-1 md:gap-0 text-left md:text-right">
           <p class="font-bold text-lg text-foreground">{{ formatCurrency(quo.total) }}</p>
-          <Badge :variant="quo.status === 'Accepted' ? 'default' : quo.status === 'Rejected' ? 'destructive' : quo.status === 'Saved' ? 'secondary' : 'outline'" class="w-fit">
+          <Badge :variant="quo.status === 'Accepted' ? 'default' : quo.status === 'Rejected' ? 'destructive' : quo.status === 'Saved' ? 'success' : 'outline'" class="w-fit">
             {{ quo.status }}
           </Badge>
         </div>
         <div class="flex items-center space-x-2">
-          <Button variant="ghost" size="icon" @click="viewQuotation(quo.id || '')">
+          <Button variant="ghost" size="icon" @click="viewQuotation(quo)">
             <Icon icon="lucide:eye" class="h-5 w-5 text-muted-foreground" />
           </Button>
           <Button variant="ghost" size="icon" @click="editQuotation(quo.id || '')">
@@ -51,11 +51,19 @@
       </div>
     </div>
   </div>
+
+  <!-- Preview Modal -->
+  <DocumentPreviewModal
+    v-model:open="previewOpen"
+    type="quotation"
+    :document="previewDocument"
+    @edit="onEditFromPreview"
+  />
  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue'
 import { useQuotationStore } from '../store/quotation'
@@ -64,17 +72,22 @@ import { useSettingsStore } from '../store/settings'
 import { Button } from '../components/ui/button'
 import { Card } from '../components/ui/card'
 import { Badge } from '../components/ui/badge'
+import DocumentPreviewModal from '../components/DocumentPreviewModal.vue'
+import type { Quotation } from '../store/quotation'
 
 export default defineComponent({
  name: 'Quotations',
  components: {
- Icon, Button, Card, Badge
+ Icon, Button, Card, Badge, DocumentPreviewModal
  },
  setup() {
  const router = useRouter()
  const quotationStore = useQuotationStore()
  const customerStore = useCustomerStore()
  const settingsStore = useSettingsStore()
+
+ const previewOpen = ref(false)
+ const previewDocument = ref<Quotation | null>(null)
 
  const getCustomerName = (id: string) => {
  const customer = customerStore.getCustomerById(id)
@@ -83,19 +96,25 @@ export default defineComponent({
 
  onMounted(() => {
    quotationStore.fetchQuotations()
-   customerStore.fetchCustomers() // ensure customers are loaded for names
+   customerStore.fetchCustomers()
  })
 
  const formatCurrency = (val: number) => {
  return new Intl.NumberFormat('en-US', { style: 'currency', currency: settingsStore.app.currency }).format(val)
  }
  
- const viewQuotation = (_id: string) => {
- // Placeholder for future view logic
+ const viewQuotation = (quo: Quotation) => {
+   previewDocument.value = quo
+   previewOpen.value = true
  }
 
  const editQuotation = (id: string) => {
  router.push(`/quotations/create?id=${id}`)
+ }
+
+ const onEditFromPreview = (doc: Quotation) => {
+   previewOpen.value = false
+   router.push(`/quotations/create?id=${doc.id}`)
  }
 
  return {
@@ -103,7 +122,10 @@ export default defineComponent({
  getCustomerName,
  formatCurrency,
  viewQuotation,
- editQuotation
+ editQuotation,
+ onEditFromPreview,
+ previewOpen,
+ previewDocument,
  }
  }
 })
