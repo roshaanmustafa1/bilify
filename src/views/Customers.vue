@@ -108,6 +108,9 @@
           <p class="font-medium text-foreground">{{ customer.phone || 'No Phone' }}</p>
         </div>
         <div class="flex items-center space-x-2">
+          <Button variant="ghost" size="icon" @click="viewCustomer(customer)">
+            <Icon icon="lucide:eye" class="h-5 w-5 text-muted-foreground" />
+          </Button>
           <Button variant="ghost" size="icon" @click="editCustomer(customer)">
             <Icon icon="lucide:edit" class="h-5 w-5 text-muted-foreground" />
           </Button>
@@ -118,6 +121,13 @@
       </div>
     </div>
   </div>
+
+  <!-- Preview Modal -->
+  <CustomerViewModal
+    v-model:open="previewOpen"
+    :customer="previewCustomer"
+    @edit="onEditFromPreview"
+  />
   </div>
 </template>
 
@@ -138,6 +148,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "../components/ui/dialog";
+import CustomerViewModal from "../components/CustomerViewModal.vue";
 
 export default defineComponent({
   name: "Customers",
@@ -155,12 +166,16 @@ export default defineComponent({
     DialogTitle,
     DialogTrigger,
     DialogFooter,
+    CustomerViewModal,
   },
   setup() {
     const customerStore = useCustomerStore();
     const isDialogOpen = ref(false);
     const editingId = ref<string | null>(null);
     const isSaving = ref(false);
+
+    const previewOpen = ref(false);
+    const previewCustomer = ref<Customer | null>(null);
 
     onMounted(() => {
       customerStore.fetchCustomers();
@@ -189,6 +204,16 @@ export default defineComponent({
       isDialogOpen.value = true;
     };
 
+    const viewCustomer = (customer: Customer) => {
+      previewCustomer.value = customer;
+      previewOpen.value = true;
+    };
+
+    const onEditFromPreview = (customer: Customer) => {
+      previewOpen.value = false;
+      editCustomer(customer);
+    };
+
     const saveCustomer = async () => {
       isSaving.value = true;
       try {
@@ -214,6 +239,10 @@ export default defineComponent({
       editCustomer,
       saveCustomer,
       isSaving,
+      viewCustomer,
+      onEditFromPreview,
+      previewOpen,
+      previewCustomer,
     };
   },
 });

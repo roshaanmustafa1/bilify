@@ -47,6 +47,9 @@
               Set Active
             </Button>
             <div class="flex items-center space-x-2 shrink-0">
+              <Button variant="ghost" size="icon" @click="viewProfile(profile)">
+                <Icon icon="lucide:eye" class="h-5 w-5 text-muted-foreground" />
+              </Button>
               <Button variant="ghost" size="icon" @click="editProfile(profile)">
                 <Icon icon="lucide:edit" class="h-5 w-5 text-muted-foreground" />
               </Button>
@@ -180,6 +183,13 @@
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    <!-- Preview Modal -->
+    <ProfileViewModal
+      v-model:open="previewOpen"
+      :profile="previewProfile"
+      @edit="onEditFromPreview"
+    />
   </div>
 </template>
 
@@ -195,19 +205,23 @@ import { Label } from '../components/ui/label';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import ProfileViewModal from '../components/ProfileViewModal.vue';
 
 export default {
   name: 'CompanyProfiles',
   components: {
     Icon, Button, Badge, Card, CardHeader, CardTitle, CardContent,
     Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-    Label, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+    Label, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+    ProfileViewModal
   },
   data() {
     return {
       isModalOpen: false,
       editingId: null,
       isSaving: false,
+      previewOpen: false,
+      previewProfile: null,
       form: {
         name: '',
         address: '',
@@ -256,6 +270,16 @@ export default {
       // Deep copy to prevent directly mutating the store object via v-model
       this.form = JSON.parse(JSON.stringify(profile));
       this.isModalOpen = true;
+    },
+
+    viewProfile(profile) {
+      this.previewProfile = profile;
+      this.previewOpen = true;
+    },
+
+    onEditFromPreview(profile) {
+      this.previewOpen = false;
+      this.editProfile(profile);
     },
 
     handleLogoUpload(event) {
