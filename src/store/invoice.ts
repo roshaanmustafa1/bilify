@@ -52,7 +52,14 @@ export const useInvoiceStore = defineStore('invoice', {
       )
         .then(({ data, error }) => {
           if (error) throw error
-          this.invoices = data || []
+          this.invoices = (data || []).map((inv: any) => {
+            if ('invoice_number' in inv) inv.invoiceNumber = inv.invoice_number;
+            if ('project_name' in inv) inv.projectName = inv.project_name;
+            if ('due_date' in inv) inv.dueDate = inv.due_date;
+            if ('customer_id' in inv) inv.customerId = inv.customer_id;
+            if ('tax_total' in inv) inv.taxTotal = inv.tax_total;
+            return inv as Invoice;
+          })
           return data
         })
         .catch((err: Error) => {
@@ -75,14 +82,30 @@ export const useInvoiceStore = defineStore('invoice', {
         return Promise.reject(new Error('Not authenticated'))
       }
 
-      const payload = { ...invoice, user_id: userId }
+      const dataToSave = { ...invoice } as any;
+      if ('invoiceNumber' in dataToSave) { dataToSave.invoice_number = dataToSave.invoiceNumber; delete dataToSave.invoiceNumber; }
+      if ('projectName' in dataToSave) { dataToSave.project_name = dataToSave.projectName; delete dataToSave.projectName; }
+      if ('dueDate' in dataToSave) { dataToSave.due_date = dataToSave.dueDate; delete dataToSave.dueDate; }
+      if ('customerId' in dataToSave) { dataToSave.customer_id = dataToSave.customerId; delete dataToSave.customerId; }
+      if ('taxTotal' in dataToSave) { dataToSave.tax_total = dataToSave.taxTotal; delete dataToSave.taxTotal; }
+      delete dataToSave.customer;
+      delete dataToSave.company;
+      delete dataToSave.bank;
+      delete dataToSave.id;
+      dataToSave.user_id = userId;
 
-      return Promise.resolve(supabase.from('invoices').insert([payload]).select())
+      return Promise.resolve(supabase.from('invoices').insert([dataToSave]).select())
         .then(({ data, error }) => {
           if (error) throw error
           if (data && data.length > 0) {
-            this.invoices.unshift(data[0])
-            return data[0]
+            const mapped = { ...data[0] } as any;
+            if ('invoice_number' in mapped) mapped.invoiceNumber = mapped.invoice_number;
+            if ('project_name' in mapped) mapped.projectName = mapped.project_name;
+            if ('due_date' in mapped) mapped.dueDate = mapped.due_date;
+            if ('customer_id' in mapped) mapped.customerId = mapped.customer_id;
+            if ('tax_total' in mapped) mapped.taxTotal = mapped.tax_total;
+            this.invoices.unshift(mapped as Invoice)
+            return mapped as Invoice
           }
           return null
         })
@@ -97,17 +120,33 @@ export const useInvoiceStore = defineStore('invoice', {
       this.loading = true
       this.error = null
 
-      const { user_id: _uid, ...safePayload } = payload as any
+      const dataToUpdate = { ...payload } as any;
+      if ('invoiceNumber' in dataToUpdate) { dataToUpdate.invoice_number = dataToUpdate.invoiceNumber; delete dataToUpdate.invoiceNumber; }
+      if ('projectName' in dataToUpdate) { dataToUpdate.project_name = dataToUpdate.projectName; delete dataToUpdate.projectName; }
+      if ('dueDate' in dataToUpdate) { dataToUpdate.due_date = dataToUpdate.dueDate; delete dataToUpdate.dueDate; }
+      if ('customerId' in dataToUpdate) { dataToUpdate.customer_id = dataToUpdate.customerId; delete dataToUpdate.customerId; }
+      if ('taxTotal' in dataToUpdate) { dataToUpdate.tax_total = dataToUpdate.taxTotal; delete dataToUpdate.taxTotal; }
+      delete dataToUpdate.customer;
+      delete dataToUpdate.company;
+      delete dataToUpdate.bank;
+      delete dataToUpdate.id;
+      delete dataToUpdate.user_id;
 
       return Promise.resolve(
-        supabase.from('invoices').update(safePayload).eq('id', id).select()
+        supabase.from('invoices').update(dataToUpdate).eq('id', id).select()
       )
         .then(({ data, error }) => {
           if (error) throw error
           if (data && data.length > 0) {
+            const mapped = { ...data[0] } as any;
+            if ('invoice_number' in mapped) mapped.invoiceNumber = mapped.invoice_number;
+            if ('project_name' in mapped) mapped.projectName = mapped.project_name;
+            if ('due_date' in mapped) mapped.dueDate = mapped.due_date;
+            if ('customer_id' in mapped) mapped.customerId = mapped.customer_id;
+            if ('tax_total' in mapped) mapped.taxTotal = mapped.tax_total;
             const index = this.invoices.findIndex(i => i.id === id)
-            if (index !== -1) this.invoices[index] = data[0]
-            return data[0]
+            if (index !== -1) this.invoices[index] = mapped as Invoice
+            return mapped as Invoice
           }
           return null
         })
