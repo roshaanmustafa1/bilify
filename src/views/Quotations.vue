@@ -5,7 +5,7 @@
       <h2 class="text-2xl font-bold text-foreground dark:text-primary-foreground">Quotations</h2>
       <p class="text-muted-foreground md:hidden mt-1">Manage your quotations</p>
     </div>
-    <Button class="w-full md:w-auto" @click="$router.push('/quotations/create')">
+    <Button class="w-full md:w-auto" @click="$router.push('/app/quotations/create')">
       <Icon icon="lucide:plus" class="mr-2 h-4 w-4" /> Create Quotation
     </Button>
   </div>
@@ -109,12 +109,12 @@ export default defineComponent({
  }
 
  const editQuotation = (id: string) => {
- router.push(`/quotations/create?id=${id}`)
+ router.push(`/app/quotations/create?id=${id}`)
  }
 
  const onEditFromPreview = (doc: Quotation) => {
    previewOpen.value = false
-   router.push(`/quotations/create?id=${doc.id}`)
+   router.push(`/app/quotations/create?id=${doc.id}`)
  }
 
  return {

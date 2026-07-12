@@ -1001,7 +1001,7 @@ export default defineComponent({
           delete payload.id;
           await quotationStore.addQuotation(payload);
         }
-        router.push("/quotations");
+        router.push("/app/quotations");
       } catch (e: any) {
         alert(e.message || "Error saving quotation");
       } finally {

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { Customer } from './customer'
 import { CompanySettings, BankSettings } from './settings'
 import { supabase } from '../services/supabase'
+import { useAuthStore } from './auth'
 
 export interface InvoiceItem {
   id: string
@@ -14,6 +15,7 @@ export interface InvoiceItem {
 
 export interface Invoice {
   id?: string
+  user_id?: string
   invoiceNumber: string
   projectName?: string
   date: string
@@ -41,101 +43,96 @@ export const useInvoiceStore = defineStore('invoice', {
     error: null as string | null
   }),
   actions: {
-    async fetchInvoices() {
+    fetchInvoices() {
       this.loading = true
       this.error = null
-      
-      try {
-        const { data, error } = await supabase
-          .from('invoices')
-          .select('*')
-        
-        if (error) throw error
-        
-        this.invoices = data || []
-        return data
-      } catch (err: any) {
-        this.error = err.message || 'Failed to fetch invoices'
-        throw err
-      } finally {
-        this.loading = false
-      }
+
+      return Promise.resolve(
+        supabase.from('invoices').select('*').order('created_at', { ascending: false })
+      )
+        .then(({ data, error }) => {
+          if (error) throw error
+          this.invoices = data || []
+          return data
+        })
+        .catch((err: Error) => {
+          this.error = err.message || 'Failed to fetch invoices'
+          throw err
+        })
+        .finally(() => { this.loading = false })
     },
-    
-    async addInvoice(invoice: Omit<Invoice, 'id'>) {
+
+    addInvoice(invoice: Omit<Invoice, 'id' | 'user_id'>) {
       this.loading = true
       this.error = null
-      
-      try {
-        const { data, error } = await supabase
-          .from('invoices')
-          .insert([invoice])
-          .select()
-        
-        if (error) throw error
-        
-        if (data && data.length > 0) {
-          this.invoices.push(data[0])
-          return data[0]
-        }
-        return null
-      } catch (err: any) {
-        this.error = err.message || 'Failed to create invoice'
-        throw err
-      } finally {
+
+      const authStore = useAuthStore()
+      const userId = authStore.userId
+
+      if (!userId) {
         this.loading = false
+        this.error = 'Not authenticated'
+        return Promise.reject(new Error('Not authenticated'))
       }
-    },
-    
-    async updateInvoice(id: string, payload: Partial<Invoice>) {
-      this.loading = true
-      this.error = null
-      
-      try {
-        const { data, error } = await supabase
-          .from('invoices')
-          .update(payload)
-          .eq('id', id)
-          .select()
-        
-        if (error) throw error
-        
-        if (data && data.length > 0) {
-          const index = this.invoices.findIndex(i => i.id === id)
-          if (index !== -1) {
-            this.invoices[index] = data[0]
+
+      const payload = { ...invoice, user_id: userId }
+
+      return Promise.resolve(supabase.from('invoices').insert([payload]).select())
+        .then(({ data, error }) => {
+          if (error) throw error
+          if (data && data.length > 0) {
+            this.invoices.unshift(data[0])
+            return data[0]
           }
-          return data[0]
-        }
-        return null
-      } catch (err: any) {
-        this.error = err.message || 'Failed to update invoice'
-        throw err
-      } finally {
-        this.loading = false
-      }
+          return null
+        })
+        .catch((err: Error) => {
+          this.error = err.message || 'Failed to create invoice'
+          throw err
+        })
+        .finally(() => { this.loading = false })
     },
-    
-    async deleteInvoice(id: string) {
+
+    updateInvoice(id: string, payload: Partial<Invoice>) {
       this.loading = true
       this.error = null
-      
-      try {
-        const { error } = await supabase
-          .from('invoices')
-          .delete()
-          .eq('id', id)
-        
-        if (error) throw error
-        
-        this.invoices = this.invoices.filter(i => i.id !== id)
-        return true
-      } catch (err: any) {
-        this.error = err.message || 'Failed to delete invoice'
-        throw err
-      } finally {
-        this.loading = false
-      }
+
+      const { user_id: _uid, ...safePayload } = payload as any
+
+      return Promise.resolve(
+        supabase.from('invoices').update(safePayload).eq('id', id).select()
+      )
+        .then(({ data, error }) => {
+          if (error) throw error
+          if (data && data.length > 0) {
+            const index = this.invoices.findIndex(i => i.id === id)
+            if (index !== -1) this.invoices[index] = data[0]
+            return data[0]
+          }
+          return null
+        })
+        .catch((err: Error) => {
+          this.error = err.message || 'Failed to update invoice'
+          throw err
+        })
+        .finally(() => { this.loading = false })
+    },
+
+    deleteInvoice(id: string) {
+      this.loading = true
+      this.error = null
+
+      return Promise.resolve(supabase.from('invoices').delete().eq('id', id))
+        .then(({ error }) => {
+          if (error) throw error
+          this.invoices = this.invoices.filter(i => i.id !== id)
+          return true
+        })
+        .catch((err: Error) => {
+          this.error = err.message || 'Failed to delete invoice'
+          throw err
+        })
+        .finally(() => { this.loading = false })
     }
   },
   getters: {

@@ -76,8 +76,11 @@
         </button>
       </header>
       <!-- Content -->
-      <div class="flex-1 overflow-auto p-4 md:p-6 pb-24 md:pb-6">
-        <router-view />
+      <div class="flex-1 overflow-auto flex flex-col p-4 md:p-6 pb-24 md:pb-6">
+        <div class="flex-1">
+          <router-view />
+        </div>
+        <AppFooter class="mt-8" />
       </div>
 
       <!-- Bottom Nav (Mobile) -->
@@ -114,39 +117,41 @@ import { defineComponent, ref, onMounted } from "vue";
 import { Icon } from "@iconify/vue";
 import { useAuthStore } from "../store/auth";
 import { useRouter } from "vue-router";
+import AppFooter from "../components/Footer.vue";
 
 export default defineComponent({
   name: "MainLayout",
   components: {
     Icon,
+    AppFooter,
   },
   setup() {
     const authStore = useAuthStore();
     const router = useRouter();
 
     const navItems = [
-      { name: "Dashboard", path: "/", icon: "lucide:layout-dashboard" },
-      { name: "Invoices", path: "/invoices", icon: "lucide:file-text" },
+      { name: "Dashboard", path: "/app", icon: "lucide:layout-dashboard" },
+      { name: "Invoices", path: "/app/invoices", icon: "lucide:file-text" },
       {
         name: "Quotations",
-        path: "/quotations",
+        path: "/app/quotations",
         icon: "lucide:file-signature",
       },
-      { name: "Customers", path: "/customers", icon: "lucide:users" },
+      { name: "Customers", path: "/app/customers", icon: "lucide:users" },
       {
         name: "Company Profiles",
-        path: "/profiles",
+        path: "/app/profiles",
         icon: "lucide:building-2",
       },
     ];
 
     const bottomNavItems = [
-      { name: "Home", path: "/", icon: "lucide:layout-grid" },
-      { name: "Invoices", path: "/invoices", icon: "lucide:file-text" },
-      { name: "Quotes", path: "/quotations", icon: "lucide:file-signature" },
-      { name: "Customers", path: "/customers", icon: "lucide:users" },
-      { name: "Profiles", path: "/profiles", icon: "lucide:building-2" },
-      { name: "AI", path: "/invoices/create?ai=true", icon: "lucide:bot" },
+      { name: "Home", path: "/app", icon: "lucide:layout-grid" },
+      { name: "Invoices", path: "/app/invoices", icon: "lucide:file-text" },
+      { name: "Quotes", path: "/app/quotations", icon: "lucide:file-signature" },
+      { name: "Customers", path: "/app/customers", icon: "lucide:users" },
+      { name: "Profiles", path: "/app/profiles", icon: "lucide:building-2" },
+      { name: "AI", path: "/app/invoices/create?ai=true", icon: "lucide:bot" },
     ];
 
     const logout = () => {

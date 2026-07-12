@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia';
 import { supabase } from '../services/supabase';
+import { useAuthStore } from './auth';
 
 export interface Customer {
   id?: string;
+  user_id?: string;
   name: string;
   email: string;
   phone: string;
@@ -19,81 +21,116 @@ export const useCustomerStore = defineStore('customer', {
     error: null as string | null
   }),
   actions: {
-    async fetchCustomers() {
+    fetchCustomers() {
       this.loading = true;
       this.error = null;
-      
-      try {
-        const { data, error } = await supabase.from('customers').select('*');
-        if (error) throw error;
-        this.customers = data || [];
-        return data;
-      } catch (err: any) {
-        this.error = err.message || 'Failed to fetch customers';
-        return Promise.reject(err);
-      } finally {
-        this.loading = false;
-      }
+
+      return Promise.resolve(supabase.from('customers').select('*'))
+        .then(({ data, error }) => {
+          if (error) throw error;
+          this.customers = (data || []).map((c: any) => {
+            if ('project_name' in c) {
+              c.projectName = c.project_name;
+            }
+            return c as Customer;
+          });
+          return data;
+        })
+        .catch((err: Error) => {
+          this.error = err.message || 'Failed to fetch customers';
+          throw err;
+        })
+        .finally(() => { this.loading = false; });
     },
-    
-    async addCustomer(payload: Omit<Customer, 'id'>) {
+
+    addCustomer(payload: Omit<Customer, 'id' | 'user_id'>) {
       this.loading = true;
       this.error = null;
-      
-      try {
-        const { data, error } = await supabase.from('customers').insert([payload]).select();
-        if (error) throw error;
-        if (data && data.length > 0) {
-          this.customers.push(data[0]);
-          return data[0];
-        }
-        return null;
-      } catch (err: any) {
-        this.error = err.message || 'Failed to create customer';
-        return Promise.reject(err);
-      } finally {
+
+      const authStore = useAuthStore();
+      const userId = authStore.userId;
+
+      if (!userId) {
         this.loading = false;
+        this.error = 'Not authenticated';
+        return Promise.reject(new Error('Not authenticated'));
       }
-    },
-    
-    async updateCustomer(id: string, payload: Partial<Customer>) {
-      this.loading = true;
-      this.error = null;
-      
-      try {
-        const { data, error } = await supabase.from('customers').update(payload).eq('id', id).select();
-        if (error) throw error;
-        if (data && data.length > 0) {
-          const index = this.customers.findIndex(c => c.id === id);
-          if (index !== -1) {
-            this.customers.splice(index, 1, data[0]);
+
+      const dataToSave = { ...payload } as any;
+      if ('projectName' in dataToSave) {
+        dataToSave.project_name = dataToSave.projectName;
+        delete dataToSave.projectName;
+      }
+      dataToSave.user_id = userId;
+
+      return Promise.resolve(
+        supabase.from('customers').insert([dataToSave]).select()
+      )
+        .then(({ data, error }) => {
+          if (error) throw error;
+          if (data && data.length > 0) {
+            this.customers.push(data[0]);
+            return data[0];
           }
-          return data[0];
-        }
-        return null;
-      } catch (err: any) {
-        this.error = err.message || 'Failed to update customer';
-        return Promise.reject(err);
-      } finally {
-        this.loading = false;
-      }
+          return null;
+        })
+        .catch((err: Error) => {
+          this.error = err.message || 'Failed to create customer';
+          throw err;
+        })
+        .finally(() => { this.loading = false; });
     },
-    
-    async deleteCustomer(id: string) {
+
+    updateCustomer(id: string, payload: Partial<Customer>) {
       this.loading = true;
       this.error = null;
-      
-      try {
-        const { error } = await supabase.from('customers').delete().eq('id', id);
-        if (error) throw error;
-        this.customers = this.customers.filter(c => c.id !== id);
-        return true;
-      } catch (err: any) {
-        this.error = err.message || 'Failed to delete customer';
-        return Promise.reject(err);
-      } finally {
-        this.loading = false;
+
+      const dataToUpdate = { ...payload } as any;
+      if ('projectName' in dataToUpdate) {
+        dataToUpdate.project_name = dataToUpdate.projectName;
+        delete dataToUpdate.projectName;
       }
+      delete dataToUpdate.id;
+      delete dataToUpdate.user_id;
+
+      return Promise.resolve(
+        supabase.from('customers').update(dataToUpdate).eq('id', id).select()
+      )
+        .then(({ data, error }) => {
+          if (error) throw error;
+          if (data && data.length > 0) {
+            const updated = data[0] as any;
+            if ('project_name' in updated) {
+              updated.projectName = updated.project_name;
+            }
+            const index = this.customers.findIndex(c => c.id === id);
+            if (index !== -1) this.customers.splice(index, 1, updated as Customer);
+            return updated;
+          }
+          return null;
+        })
+        .catch((err: Error) => {
+          this.error = err.message || 'Failed to update customer';
+          throw err;
+        })
+        .finally(() => { this.loading = false; });
+    },
+
+    deleteCustomer(id: string) {
+      this.loading = true;
+      this.error = null;
+
+      return Promise.resolve(supabase.from('customers').delete().eq('id', id))
+        .then(({ error }) => {
+          if (error) throw error;
+          this.customers = this.customers.filter(c => c.id !== id);
+          return true;
+        })
+        .catch((err: Error) => {
+          this.error = err.message || 'Failed to delete customer';
+          throw err;
+        })
+        .finally(() => { this.loading = false; });
     }
   },
   getters: {

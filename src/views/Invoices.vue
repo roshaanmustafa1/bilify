@@ -13,7 +13,7 @@
       </div>
       <Button
         class="w-full md:w-auto"
-        @click="$router.push('/invoices/create')"
+        @click="$router.push('/app/invoices/create')"
       >
         <Icon icon="lucide:plus" class="mr-2 h-4 w-4" /> Create Invoice
       </Button>
@@ -161,12 +161,12 @@ export default defineComponent({
     };
 
     const editInvoice = (id: string) => {
-      router.push(`/invoices/create?id=${id}`);
+      router.push(`/app/invoices/create?id=${id}`);
     };
 
     const onEditFromPreview = (doc: Invoice) => {
       previewOpen.value = false;
-      router.push(`/invoices/create?id=${doc.id}`);
+      router.push(`/app/invoices/create?id=${doc.id}`);
     };
 
     return {

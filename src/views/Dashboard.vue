@@ -16,13 +16,13 @@
         <Button
           variant="outline"
           class="w-full md:w-auto font-medium shadow-sm hover:shadow-md transition-shadow"
-          @click="$router.push('/quotations/create')"
+          @click="$router.push('/app/quotations/create')"
         >
           <Icon icon="lucide:plus" class="mr-2 h-4 w-4" /> New Quotation
         </Button>
         <Button
           class="w-full md:w-auto font-medium"
-          @click="$router.push('/invoices/create')"
+          @click="$router.push('/app/invoices/create')"
         >
           <Icon icon="lucide:file-text" class="mr-2 h-4 w-4" /> New Invoice
         </Button>
@@ -79,7 +79,7 @@
               </p>
             </div>
             <router-link
-              to="/invoices"
+              to="/app/invoices"
               class="text-sm font-semibold hover:underline text-primary"
               >View All</router-link
             >
@@ -177,8 +177,8 @@
           </CardHeader>
           <CardContent class="grid grid-cols-2 gap-4">
             <button
-              @click="$router.push('/customers')"
-              class="flex flex-col items-center justify-center p-5 border border-border/50 rounded-2xl bg-muted/20 hover:bg-primary/40 transition-colors gap-3 group"
+              @click="$router.push('/app/customers')"
+              class="flex flex-col items-center justify-center p-5 border border-border rounded-2xl bg-muted/20 hover:bg-primary/40 transition-colors gap-3 group"
             >
               <Icon
                 icon="lucide:user-plus"
@@ -190,7 +190,7 @@
             </button>
             <button
               @click="openAI"
-              class="flex flex-col items-center justify-center p-5 border border-border/50 rounded-2xl bg-muted/20 hover:bg-primary/40 transition-colors gap-3 group"
+              class="flex flex-col items-center justify-center p-5 border border-border rounded-2xl bg-muted/20 hover:bg-primary/40 transition-colors gap-3 group"
             >
               <Icon
                 icon="lucide:bot"
@@ -201,7 +201,7 @@
               >
             </button>
             <button
-              class="flex flex-col items-center justify-center p-5 border border-border/50 rounded-2xl bg-muted/20 hover:bg-primary/40 transition-colors gap-3 group"
+              class="flex flex-col items-center justify-center p-5 border border-border rounded-2xl bg-muted/20 hover:bg-primary/40 transition-colors gap-3 group"
             >
               <Icon
                 icon="lucide:bar-chart-3"
@@ -212,7 +212,7 @@
               >
             </button>
             <button
-              class="flex flex-col items-center justify-center p-5 border border-border/50 rounded-2xl bg-muted/20 hover:bg-primary/40 transition-colors gap-3 group"
+              class="flex flex-col items-center justify-center p-5 border border-border rounded-2xl bg-muted/20 hover:bg-primary/40 transition-colors gap-3 group"
             >
               <Icon
                 icon="lucide:file-up"
@@ -428,7 +428,7 @@ export default defineComponent({
     };
 
     const openAI = () => {
-      router.push("/invoices/create?ai=true");
+      router.push("/app/invoices/create?ai=true");
     };
 
     return {

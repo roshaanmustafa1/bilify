@@ -5,6 +5,11 @@ import 'nprogress/nprogress.css'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
+    name: 'Landing',
+    component: () => import('../views/LandingView.vue')
+  },
+  {
+    path: '/app',
     component: () => import('../layouts/MainLayout.vue'),
     children: [
       { path: '', name: 'Dashboard', component: () => import('../views/Dashboard.vue') },

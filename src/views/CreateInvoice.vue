@@ -1002,7 +1002,7 @@ export default defineComponent({
           delete payload.id;
           await invoiceStore.addInvoice(payload);
         }
-        router.push("/invoices");
+        router.push("/app/invoices");
       } catch (e: any) {
         alert(e.message || "Error saving invoice");
       } finally {
