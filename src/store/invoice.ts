@@ -34,6 +34,8 @@ export interface Invoice {
   terms: string
   status: 'Draft' | 'Saved' | 'Sent' | 'Paid' | 'Overdue'
   template?: string
+  invoiceColumns?: any[]
+  documentType: 'Invoice' | 'Quotation'
 }
 
 export const useInvoiceStore = defineStore('invoice', {
@@ -55,9 +57,16 @@ export const useInvoiceStore = defineStore('invoice', {
           this.invoices = (data || []).map((inv: any) => {
             if ('invoice_number' in inv) inv.invoiceNumber = inv.invoice_number;
             if ('project_name' in inv) inv.projectName = inv.project_name;
-            if ('due_date' in inv) inv.dueDate = inv.due_date;
+            if ('due_date' in inv) {
+              inv.dueDate = inv.due_date;
+              inv.validUntil = inv.due_date;
+            }
             if ('customer_id' in inv) inv.customerId = inv.customer_id;
             if ('tax_total' in inv) inv.taxTotal = inv.tax_total;
+            if ('document_type' in inv) inv.documentType = inv.document_type;
+            if (inv.items && inv.items.length > 0 && inv.items[0].customData?._invoiceColumns) {
+              inv.invoiceColumns = inv.items[0].customData._invoiceColumns;
+            }
             return inv as Invoice;
           })
           return data
@@ -88,11 +97,21 @@ export const useInvoiceStore = defineStore('invoice', {
       if ('dueDate' in dataToSave) { dataToSave.due_date = dataToSave.dueDate; delete dataToSave.dueDate; }
       if ('customerId' in dataToSave) { dataToSave.customer_id = dataToSave.customerId; delete dataToSave.customerId; }
       if ('taxTotal' in dataToSave) { dataToSave.tax_total = dataToSave.taxTotal; delete dataToSave.taxTotal; }
+      if ('documentType' in dataToSave) { dataToSave.document_type = dataToSave.documentType; delete dataToSave.documentType; }
       delete dataToSave.customer;
       delete dataToSave.company;
       delete dataToSave.bank;
       delete dataToSave.id;
+      delete dataToSave.invoiceColumns;
+      delete dataToSave.discountType;
+      delete dataToSave.globalDiscount;
+      delete dataToSave.taxRate;
       dataToSave.user_id = userId;
+
+      if (invoice.invoiceColumns && dataToSave.items && dataToSave.items.length > 0) {
+        if (!dataToSave.items[0].customData) dataToSave.items[0].customData = {};
+        dataToSave.items[0].customData._invoiceColumns = invoice.invoiceColumns;
+      }
 
       return Promise.resolve(supabase.from('invoices').insert([dataToSave]).select())
         .then(({ data, error }) => {
@@ -126,11 +145,21 @@ export const useInvoiceStore = defineStore('invoice', {
       if ('dueDate' in dataToUpdate) { dataToUpdate.due_date = dataToUpdate.dueDate; delete dataToUpdate.dueDate; }
       if ('customerId' in dataToUpdate) { dataToUpdate.customer_id = dataToUpdate.customerId; delete dataToUpdate.customerId; }
       if ('taxTotal' in dataToUpdate) { dataToUpdate.tax_total = dataToUpdate.taxTotal; delete dataToUpdate.taxTotal; }
+      if ('documentType' in dataToUpdate) { dataToUpdate.document_type = dataToUpdate.documentType; delete dataToUpdate.documentType; }
       delete dataToUpdate.customer;
       delete dataToUpdate.company;
       delete dataToUpdate.bank;
       delete dataToUpdate.id;
       delete dataToUpdate.user_id;
+      delete dataToUpdate.invoiceColumns;
+      delete dataToUpdate.discountType;
+      delete dataToUpdate.globalDiscount;
+      delete dataToUpdate.taxRate;
+
+      if (payload.invoiceColumns && dataToUpdate.items && dataToUpdate.items.length > 0) {
+        if (!dataToUpdate.items[0].customData) dataToUpdate.items[0].customData = {};
+        dataToUpdate.items[0].customData._invoiceColumns = payload.invoiceColumns;
+      }
 
       return Promise.resolve(
         supabase.from('invoices').update(dataToUpdate).eq('id', id).select()

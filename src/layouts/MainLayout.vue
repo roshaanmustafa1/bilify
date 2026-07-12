@@ -131,12 +131,7 @@ export default defineComponent({
 
     const navItems = [
       { name: "Dashboard", path: "/app", icon: "lucide:layout-dashboard" },
-      { name: "Invoices", path: "/app/invoices", icon: "lucide:file-text" },
-      {
-        name: "Quotations",
-        path: "/app/quotations",
-        icon: "lucide:file-signature",
-      },
+      { name: "Invoice & Quotation", path: "/app/invoices", icon: "lucide:file-text" },
       { name: "Customers", path: "/app/customers", icon: "lucide:users" },
       {
         name: "Company Profiles",
@@ -147,8 +142,7 @@ export default defineComponent({
 
     const bottomNavItems = [
       { name: "Home", path: "/app", icon: "lucide:layout-grid" },
-      { name: "Invoices", path: "/app/invoices", icon: "lucide:file-text" },
-      { name: "Quotes", path: "/app/quotations", icon: "lucide:file-signature" },
+      { name: "Inv & Quote", path: "/app/invoices", icon: "lucide:file-text" },
       { name: "Customers", path: "/app/customers", icon: "lucide:users" },
       { name: "Profiles", path: "/app/profiles", icon: "lucide:building-2" },
       { name: "AI", path: "/app/invoices/create?ai=true", icon: "lucide:bot" },

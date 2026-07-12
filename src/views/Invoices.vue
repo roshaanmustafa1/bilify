@@ -7,7 +7,7 @@
         <h2
           class="text-2xl font-bold text-foreground dark:text-primary-foreground"
         >
-          Invoices
+          Invoices & Quotations
         </h2>
         <p class="text-muted-foreground md:hidden mt-1">Manage your invoices</p>
       </div>
@@ -19,31 +19,52 @@
       </Button>
     </div>
 
+    <div class="flex items-center space-x-2 bg-muted/50 p-1 rounded-lg w-fit">
+      <button
+        v-for="tab in ['All', 'Invoices', 'Quotations']"
+        :key="tab"
+        @click="activeTab = tab"
+        :class="[
+          'px-4 py-1.5 rounded-md text-sm font-medium transition-colors',
+          activeTab === tab
+            ? 'bg-background text-foreground shadow-sm'
+            : 'text-muted-foreground hover:text-foreground'
+        ]"
+      >
+        {{ tab }}
+      </button>
+    </div>
+
     <div
-      v-if="invoiceStore.invoices.length === 0"
+      v-if="filteredInvoices.length === 0"
       class="text-center py-12 text-muted-foreground border rounded-lg bg-card"
     >
-      No invoices found. Create your first invoice!
+      No documents found. Create your first one!
     </div>
     <div v-else class="space-y-4">
       <div
-        v-for="inv in invoiceStore.invoices"
+        v-for="inv in filteredInvoices"
         :key="inv.id"
         class="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-xl md:rounded-lg bg-card dark:border-border transition-all hover:shadow-sm gap-4 md:gap-0"
       >
         <div class="flex items-center space-x-4">
           <div
-            class="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full md:bg-blue-50 md:dark:bg-blue-900/20"
+            class="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full md:bg-blue-50 md:dark:bg-blue-900/20 flex flex-col items-center justify-center"
           >
             <Icon
-              icon="lucide:file-text"
+              :icon="inv.documentType === 'Quotation' ? 'lucide:file-signature' : 'lucide:file-text'"
               class="h-6 w-6 text-blue-600 dark:text-blue-400 md:text-blue-500"
             />
           </div>
           <div>
-            <p class="font-medium text-lg text-foreground">
-              {{ inv.invoiceNumber }}
-            </p>
+            <div class="flex items-center gap-2">
+              <p class="font-medium text-lg text-foreground">
+                {{ inv.invoiceNumber }}
+              </p>
+              <Badge variant="outline" class="text-xs">
+                {{ inv.documentType || 'Invoice' }}
+              </Badge>
+            </div>
             <p class="text-sm text-muted-foreground">
               {{ getCustomerName(inv.customerId) }} • {{ inv.date }}
             </p>
@@ -100,7 +121,7 @@
     <!-- Preview Modal -->
     <DocumentPreviewModal
       v-model:open="previewOpen"
-      type="invoice"
+      :type="previewDocumentType"
       :document="previewDocument"
       @edit="onEditFromPreview"
     />
@@ -108,7 +129,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
+import { defineComponent, onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { Icon } from "@iconify/vue";
 import { useInvoiceStore } from "../store/invoice";
@@ -137,6 +158,20 @@ export default defineComponent({
 
     const previewOpen = ref(false);
     const previewDocument = ref<Invoice | null>(null);
+    const activeTab = ref('All');
+
+    const previewDocumentType = computed(() => {
+      return (previewDocument.value?.documentType || 'Invoice').toLowerCase() as 'invoice' | 'quotation';
+    });
+
+    const filteredInvoices = computed(() => {
+      if (activeTab.value === 'Invoices') {
+        return invoiceStore.invoices.filter(i => i.documentType !== 'Quotation');
+      } else if (activeTab.value === 'Quotations') {
+        return invoiceStore.invoices.filter(i => i.documentType === 'Quotation');
+      }
+      return invoiceStore.invoices;
+    });
 
     const getCustomerName = (id: string) => {
       const customer = customerStore.getCustomerById(id);
@@ -178,6 +213,9 @@ export default defineComponent({
       onEditFromPreview,
       previewOpen,
       previewDocument,
+      activeTab,
+      filteredInvoices,
+      previewDocumentType,
     };
   },
 });

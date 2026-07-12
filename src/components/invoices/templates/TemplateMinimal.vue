@@ -143,27 +143,21 @@
     <div class="mb-12 border-b border-border overflow-x-auto">
       <table
         class="w-full text-left border-collapse min-w-[500px]"
-        style="table-layout: fixed"
       >
         <thead>
           <tr class="bg-gradient-to-r from-[#29855b] to-[#144b33] text-white">
             <th
-              class="py-3 px-4 font-normal text-sm border-r border-white/20 w-[50%]"
+              v-for="col in (document.invoiceColumns || [
+                { id: 'name', label: 'Item Detail' },
+                { id: 'qty', label: 'Quantity' },
+                { id: 'price', label: 'Rate' },
+                { id: 'rowTotal', label: 'Amount' }
+              ])"
+              :key="col.id"
+              class="py-3 px-4 font-normal text-sm border-r border-white/20"
+              :class="col.id === 'name' ? 'w-full' : 'text-center whitespace-nowrap px-4'"
             >
-              Items Detail
-            </th>
-            <th
-              class="py-3 px-4 font-normal text-sm text-center border-r border-white/20 w-[15%]"
-            >
-              Quantity
-            </th>
-            <th
-              class="py-3 px-4 font-normal text-sm text-center border-r border-white/20 w-[15%]"
-            >
-              Rate
-            </th>
-            <th class="py-3 px-4 font-normal text-sm text-center w-[20%]">
-              Amount
+              {{ col.label }}
             </th>
           </tr>
         </thead>
@@ -173,8 +167,15 @@
             :key="item.id"
             :class="index % 2 === 0 ? 'bg-background' : 'bg-primary/10/50'"
           >
-            <td class="py-4 px-4">
-              <div class="flex">
+            <td
+              v-for="col in (document.invoiceColumns || [
+                { id: 'name' }, { id: 'qty' }, { id: 'price' }, { id: 'rowTotal' }
+              ])"
+              :key="col.id"
+              class="py-4 px-4"
+              :class="col.id !== 'name' ? 'text-center text-foreground whitespace-nowrap px-4' : ''"
+            >
+              <div v-if="col.id === 'name'" class="flex">
                 <span class="text-muted-foreground mr-2"
                   >{{ String(index + 1).padStart(2, "0") }}.</span
                 >
@@ -188,15 +189,12 @@
                   </div>
                 </div>
               </div>
-            </td>
-            <td class="py-4 px-4 text-center text-foreground">
-              {{ String(item.quantity).padStart(2, "0") }}
-            </td>
-            <td class="py-4 px-4 text-center text-foreground">
-              {{ formatCurrency(item.price) }}
-            </td>
-            <td class="py-4 px-4 text-center text-foreground">
-              {{ formatCurrency(item.quantity * item.price) }}
+              <span v-else-if="col.id === 'qty'">{{ String(item.quantity).padStart(2, "0") }}</span>
+              <span v-else-if="col.id === 'price'">{{ formatCurrency(item.price) }}</span>
+              <span v-else-if="col.id === 'rowTotal'">{{ formatCurrency(item.quantity * item.price) }}</span>
+              <span v-else>
+                {{ col.type === 'formula' ? formatCurrency(item[col.id]) : (item.customData?.[col.id] || '') }}
+              </span>
             </td>
           </tr>
         </tbody>
@@ -230,15 +228,23 @@
       </div>
 
       <div class="w-1/2">
-        <div
-          class="flex justify-between border-t border-b border-border py-3 mb-6"
-        >
-          <span class="text-foreground font-medium text-base"
-            >Total Amount :</span
-          >
-          <span class="text-foreground font-medium text-base">{{
-            formatCurrency(document.total)
-          }}</span>
+        <div class="space-y-2 mb-6">
+          <div class="flex justify-between border-b border-border py-2 text-sm">
+            <span class="text-foreground font-medium">Subtotal :</span>
+            <span class="text-foreground font-medium">{{ formatCurrency(document.subtotal) }}</span>
+          </div>
+          <div v-if="document.taxTotal" class="flex justify-between border-b border-border py-2 text-sm">
+            <span class="text-foreground font-medium">Tax{{ document.taxRate ? ` (${document.taxRate}%)` : '' }} :</span>
+            <span class="text-foreground font-medium">+{{ formatCurrency(document.taxTotal) }}</span>
+          </div>
+          <div v-if="document.discount" class="flex justify-between border-b border-border py-2 text-sm">
+            <span class="text-red-500 font-medium">Discount{{ document.discountType === 'percentage' ? ` (${document.globalDiscount}%)` : '' }} :</span>
+            <span class="text-red-500 font-medium">-{{ formatCurrency(document.discount) }}</span>
+          </div>
+          <div class="flex justify-between border-b border-border py-3 text-base mt-2">
+            <span class="text-foreground font-bold text-lg">Total Amount :</span>
+            <span class="text-foreground font-bold text-lg">{{ formatCurrency(document.total) }}</span>
+          </div>
         </div>
 
         <div>

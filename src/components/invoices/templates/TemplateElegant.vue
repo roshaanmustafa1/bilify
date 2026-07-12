@@ -113,54 +113,61 @@
 
     <!-- Items -->
     <div class="mb-12 overflow-x-auto">
-      <table class="w-full text-left border-collapse min-w-[500px]" style="table-layout: fixed;">
+      <table class="w-full text-left border-collapse min-w-[500px]">
         <thead>
           <tr>
             <th
-              class="py-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40 w-[50%]"
+              v-for="col in (document.invoiceColumns || [
+                { id: 'name', label: 'Item Description' },
+                { id: 'qty', label: 'Qty' },
+                { id: 'price', label: 'Rate' },
+                { id: 'rowTotal', label: 'Amount' }
+              ])"
+              :key="col.id"
+              class="py-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40"
+              :class="[
+                col.id === 'name' ? 'w-full text-left' : '',
+                col.id === 'qty' ? 'text-center whitespace-nowrap px-4' : '',
+                col.id === 'price' ? 'text-right whitespace-nowrap px-4' : '',
+                col.id === 'rowTotal' ? 'text-right text-foreground whitespace-nowrap pl-4' : '',
+                col.isCustom ? 'text-center whitespace-nowrap px-4' : ''
+              ]"
             >
-              Item Description
-            </th>
-            <th
-              class="py-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40 text-center w-[15%]"
-            >
-              Qty
-            </th>
-            <th
-              class="py-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40 text-right w-[15%]"
-            >
-              Rate
-            </th>
-            <th
-              class="py-3 text-xs font-semibold uppercase tracking-widest text-foreground border-b border-border/40 text-right w-[20%]"
-            >
-              Amount
+              {{ col.label }}
             </th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="item in document.items" :key="item.id">
-            <td class="py-5 border-b border-border/20 pr-4">
-              <div class="font-medium text-foreground">{{ item.name }}</div>
-              <div
-                v-if="item.description"
-                class="text-muted-foreground font-light text-xs mt-1"
-              >
-                {{ item.description }}
+            <td
+              v-for="col in (document.invoiceColumns || [
+                { id: 'name' }, { id: 'qty' }, { id: 'price' }, { id: 'rowTotal' }
+              ])"
+              :key="col.id"
+              class="py-5 border-b border-border/20"
+              :class="[
+                col.id === 'name' ? 'pr-4 w-full' : '',
+                col.id === 'qty' ? 'text-center font-light whitespace-nowrap px-4' : '',
+                col.id === 'price' ? 'text-right font-light text-muted-foreground whitespace-nowrap px-4' : '',
+                col.id === 'rowTotal' ? 'text-right font-medium text-foreground whitespace-nowrap pl-4' : '',
+                col.isCustom ? 'text-center font-light text-foreground whitespace-nowrap px-4' : ''
+              ]"
+            >
+              <div v-if="col.id === 'name'">
+                <div class="font-medium text-foreground">{{ item.name }}</div>
+                <div
+                  v-if="item.description"
+                  class="text-muted-foreground font-light text-xs mt-1"
+                >
+                  {{ item.description }}
+                </div>
               </div>
-            </td>
-            <td class="py-5 border-b border-border/20 text-center font-light">
-              {{ item.quantity }}
-            </td>
-            <td
-              class="py-5 border-b border-border/20 text-right font-light text-muted-foreground"
-            >
-              {{ formatCurrency(item.price) }}
-            </td>
-            <td
-              class="py-5 border-b border-border/20 text-right font-medium text-foreground"
-            >
-              {{ formatCurrency(item.quantity * item.price) }}
+              <template v-else-if="col.id === 'qty'">{{ item.quantity }}</template>
+              <template v-else-if="col.id === 'price'">{{ formatCurrency(item.price) }}</template>
+              <template v-else-if="col.id === 'rowTotal'">{{ formatCurrency(item.quantity * item.price) }}</template>
+              <template v-else>
+                {{ col.type === 'formula' ? formatCurrency(item[col.id]) : (item.customData?.[col.id] || '') }}
+              </template>
             </td>
           </tr>
         </tbody>
@@ -216,15 +223,15 @@
             v-if="document.taxTotal"
             class="flex justify-between text-muted-foreground"
           >
-            <span>Tax</span>
-            <span>{{ formatCurrency(document.taxTotal) }}</span>
+            <span>Tax{{ document.taxRate ? ` (${document.taxRate}%)` : '' }}</span>
+            <span>+{{ formatCurrency(document.taxTotal) }}</span>
           </div>
           <div
             v-if="document.discount"
             class="flex justify-between text-muted-foreground"
           >
-            <span>Discount</span>
-            <span>-{{ formatCurrency(document.discount) }}</span>
+            <span>Discount{{ document.discountType === 'percentage' ? ` (${document.globalDiscount}%)` : '' }}</span>
+            <span class="text-red-500">-{{ formatCurrency(document.discount) }}</span>
           </div>
           <div
             class="flex justify-between font-medium text-lg pt-4 border-t border-border/40 mt-2 text-foreground"

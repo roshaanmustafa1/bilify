@@ -6,7 +6,7 @@
       <h2
         class="text-2xl font-bold text-foreground dark:text-primary-foreground"
       >
-        {{ isEdit ? "Edit Invoice" : "Create Invoice" }}
+        {{ isEdit ? "Edit" : "Create" }} {{ form.documentType }}
       </h2>
       <div
         class="grid grid-cols-1 sm:grid-cols-3 md:flex md:space-x-3 gap-3 md:gap-0"
@@ -55,7 +55,22 @@
               <div class="space-y-2">
                 <Label
                   class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground"
-                  >Invoice Number</Label
+                  >Document Type</Label
+                >
+                <Select v-model="form.documentType">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Document Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Invoice">Invoice</SelectItem>
+                    <SelectItem value="Quotation">Quotation</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div class="space-y-2">
+                <Label
+                  class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground"
+                  >{{ form.documentType === 'Quotation' ? 'Quotation Number' : 'Invoice Number' }}</Label
                 >
                 <Input v-model="form.invoiceNumber" />
               </div>
@@ -87,14 +102,14 @@
               <div class="space-y-2">
                 <Label
                   class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground"
-                  >Invoice Date</Label
+                  >{{ form.documentType === 'Quotation' ? 'Quotation Date' : 'Invoice Date' }}</Label
                 >
                 <Input type="date" v-model="form.date" />
               </div>
               <div class="space-y-2">
                 <Label
                   class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground"
-                  >Due Date</Label
+                  >{{ form.documentType === 'Quotation' ? 'Valid Until' : 'Due Date' }}</Label
                 >
                 <Input type="date" v-model="form.dueDate" />
               </div>
@@ -454,100 +469,15 @@
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader
-            class="flex flex-row items-center justify-between space-y-0 pb-2"
-          >
-            <CardTitle>Items</CardTitle>
-            <Button variant="outline" size="sm" @click="addItem">
-              <Icon icon="lucide:plus" class="mr-1 h-4 w-4" /> Add Item
-            </Button>
-          </CardHeader>
-          <CardContent class="space-y-4">
-            <div
-              v-for="(item, index) in form.items"
-              :key="item.id"
-              class="p-4 border rounded-lg space-y-4 relative bg-muted dark:bg-card/50"
-            >
-              <div class="absolute top-2 right-2 flex items-center space-x-2">
-                <button
-                  @click="duplicateItem(index)"
-                  class="text-muted-foreground hover:text-foreground"
-                  title="Duplicate Row"
-                >
-                  <Icon icon="lucide:copy" class="h-4 w-4" />
-                </button>
-                <button
-                  @click="removeItem(index)"
-                  class="text-red-500 hover:text-red-700"
-                  title="Remove Row"
-                >
-                  <Icon icon="lucide:x" class="h-4 w-4" />
-                </button>
-              </div>
-              <div class="grid grid-cols-12 gap-4">
-                <div class="col-span-12 md:col-span-5 space-y-2">
-                  <Label
-                    class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground"
-                    >Item Name</Label
-                  >
-                  <Input
-                    v-model="item.name"
-                    placeholder="Item Name"
-                    class="bg-background"
-                  />
-                </div>
-                <div class="col-span-4 md:col-span-2 space-y-2">
-                  <Label
-                    class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground"
-                    >Qty</Label
-                  >
-                  <Input
-                    type="number"
-                    v-model.number="item.quantity"
-                    class="bg-background"
-                  />
-                </div>
-                <div class="col-span-8 md:col-span-3 space-y-2">
-                  <Label
-                    class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground"
-                    >Price</Label
-                  >
-                  <Input
-                    type="number"
-                    v-model.number="item.price"
-                    class="bg-background"
-                  />
-                </div>
-                <div
-                  class="col-span-12 md:col-span-2 space-y-2 flex flex-col justify-end"
-                >
-                  <Label
-                    class="mb-2 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground"
-                    >Total</Label
-                  >
-                  <div class="font-medium pt-2">
-                    {{ formatCurrency(item.quantity * item.price) }}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="space-y-2 pt-4 border-t">
-              <Label
-                class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground"
-                >Discount Amount</Label
-              >
-              <Input type="number" v-model.number="form.discount" />
-            </div>
-          </CardContent>
-        </Card>
+        <InvoiceGrid />
+        <InvoiceSummary />
 
         <Card>
           <CardHeader>
             <CardTitle>Document Settings</CardTitle>
           </CardHeader>
           <CardContent class="space-y-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 gap-4">
               <div class="space-y-2">
                 <Label
                   class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground"
@@ -581,18 +511,6 @@
                     >
                   </SelectContent>
                 </Select>
-              </div>
-              <div class="space-y-2">
-                <Label
-                  class="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground"
-                  >Tax Rate (%)</Label
-                >
-                <Input
-                  type="number"
-                  v-model.number="globalTaxRate"
-                  min="0"
-                  max="100"
-                />
               </div>
             </div>
             <div class="space-y-2 mt-4">
@@ -669,7 +587,7 @@
             class="bg-muted dark:bg-card p-4 rounded-lg overflow-auto max-h-[100vh] shadow-inner"
           >
             <InvoicePreview
-              type="invoice"
+              :type="previewDocumentType"
               :document="computedInvoice"
               elementId="invoice-pdf"
             />
@@ -705,7 +623,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, computed, onMounted } from "vue";
+import { defineComponent, ref, reactive, computed, onMounted, watch } from "vue";
 import { useRouter, useRoute, onBeforeRouteLeave } from "vue-router";
 import { Icon } from "@iconify/vue";
 import { format, addDays } from "date-fns";
@@ -734,8 +652,11 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import InvoicePreview from "../components/invoices/InvoicePreview.vue";
+import InvoiceGrid from "../components/invoices/InvoiceGrid.vue";
+import InvoiceSummary from "../components/invoices/InvoiceSummary.vue";
 import AIAssistantModal from "../components/invoices/AIAssistantModal.vue";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../components/ui/dialog";
+import { useInvoiceBuilderStore } from "../store/invoiceBuilder";
 
 export default defineComponent({
   name: "CreateInvoice",
@@ -755,6 +676,8 @@ export default defineComponent({
     SelectTrigger,
     SelectValue,
     InvoicePreview,
+    InvoiceGrid,
+    InvoiceSummary,
     AIAssistantModal,
     Dialog,
     DialogContent,
@@ -769,6 +692,7 @@ export default defineComponent({
     const customerStore = useCustomerStore();
     const settingsStore = useSettingsStore();
     const profileStore = useProfileStore();
+    const builderStore = useInvoiceBuilderStore();
 
     const isEdit = ref(false);
     const isAIModalOpen = ref(false);
@@ -805,8 +729,8 @@ export default defineComponent({
 
     const form = reactive({
       id: "",
-      invoiceNumber:
-        settingsStore.app.invoicePrefix + Date.now().toString().slice(-6),
+      documentType: "Invoice" as "Invoice" | "Quotation",
+      invoiceNumber: "", // Initialized in onMounted
       projectName: "",
       date: format(new Date(), "yyyy-MM-dd"),
       dueDate: format(addDays(new Date(), 30), "yyyy-MM-dd"),
@@ -876,10 +800,37 @@ export default defineComponent({
     };
 
     onMounted(() => {
+      builderStore.resetStore(); // Reset builder on load
       customerStore.fetchCustomers();
       profileStore.fetchProfiles().then(() => {
         if (profileStore.activeProfileId && !form.company.name) {
           applyProfile(profileStore.activeProfileId);
+        }
+      });
+      
+      const getNextDocumentNumber = (type: 'Invoice' | 'Quotation') => {
+        const documentsOfType = invoiceStore.invoices.filter(i => i.documentType === type);
+        const prefix = type === 'Quotation' ? 'QUO-' : (settingsStore.app.invoicePrefix || 'INV-');
+        
+        let maxNum = 0;
+        documentsOfType.forEach(doc => {
+          if (doc.invoiceNumber.startsWith(prefix)) {
+            const numPart = doc.invoiceNumber.substring(prefix.length);
+            const num = parseInt(numPart, 10);
+            if (!isNaN(num) && num.toString() === numPart.replace(/^0+/, '')) {
+              if (num > maxNum) maxNum = num;
+            } else if (!isNaN(num) && numPart.match(/^\d+$/)) {
+              if (num > maxNum) maxNum = num;
+            }
+          }
+        });
+        
+        return `${prefix}${(maxNum + 1).toString().padStart(4, '0')}`;
+      };
+
+      watch(() => form.documentType, (newType, oldType) => {
+        if (!isEdit.value && form.invoiceNumber === getNextDocumentNumber(oldType as any)) {
+          form.invoiceNumber = getNextDocumentNumber(newType);
         }
       });
       const id = route.query.id as string;
@@ -888,64 +839,76 @@ export default defineComponent({
         if (inv) {
           isEdit.value = true;
           Object.assign(form, JSON.parse(JSON.stringify(inv)));
+          
+          // Hydrate builder store
+          builderStore.globalTax = inv.taxTotal > 0 && inv.subtotal > 0 ? (inv.taxTotal / inv.subtotal) * 100 : 0;
+          builderStore.globalDiscount = inv.discount || 0;
+          builderStore.discountType = 'flat';
+          
+          if (inv.items && inv.items.length > 0) {
+            builderStore.lineItems = inv.items.map((i: any) => ({
+              id: i.id || Date.now().toString(),
+              name: i.name,
+              qty: i.quantity || i.qty || 1,
+              price: i.price,
+              customData: i.customData || {}
+            }));
+            
+            // Restore custom columns
+            if (inv.invoiceColumns && Array.isArray(inv.invoiceColumns)) {
+              builderStore.invoiceColumns = JSON.parse(JSON.stringify(inv.invoiceColumns));
+            } else {
+              // Fallback for old invoices
+              const firstItem = inv.items[0] as any;
+              if (firstItem.customData) {
+                Object.keys(firstItem.customData).forEach(key => {
+                  if (key !== '_invoiceColumns' && !builderStore.invoiceColumns.some(c => c.id === key)) {
+                    builderStore.addColumn({
+                      id: key,
+                      label: key, // Approximation, DB doesn't store labels natively right now
+                      type: typeof firstItem.customData[key] === 'number' ? 'numeric' : 'text',
+                      isCustom: true
+                    }, 'rowTotal');
+                  }
+                })
+              }
+            }
+          }
         }
-      } else if (route.query.ai === "true") {
-        isAIModalOpen.value = true;
       } else {
-        addItem();
+        // Initialize number for new document
+        form.invoiceNumber = getNextDocumentNumber(form.documentType);
+      }
+      
+      if (!id && route.query.ai === "true") {
+        isAIModalOpen.value = true;
       }
     });
 
-    const addItem = () => {
-      form.items.push({
-        id: Date.now().toString(),
-        name: "",
-        quantity: 1,
-        price: 0,
-        taxRate: settingsStore.app.taxRate,
-      });
-    };
-
-    const removeItem = (index: number) => {
-      form.items.splice(index, 1);
-    };
-
-    const duplicateItem = (index: number) => {
-      const itemToCopy = form.items[index];
-      form.items.splice(index + 1, 0, {
-        ...itemToCopy,
-        id: Date.now().toString() + Math.random().toString(36).substring(2, 6),
-      });
-    };
-
-    const globalTaxRate = computed({
-      get: () =>
-        form.items.length > 0
-          ? form.items[0].taxRate
-          : settingsStore.app.taxRate,
-      set: (val: number) => {
-        form.items.forEach((item) => {
-          item.taxRate = val || 0;
-        });
-      },
-    });
-
     const computedInvoice = computed(() => {
-      const subtotal = form.items.reduce(
-        (sum, item) => sum + item.quantity * item.price,
-        0,
-      );
-      const taxTotal = form.items.reduce(
-        (sum, item) => sum + item.quantity * item.price * (item.taxRate / 100),
-        0,
-      );
-      const total = subtotal + taxTotal - form.discount;
+      const subtotal = builderStore.subtotal;
+      const taxTotal = builderStore.calculatedTax;
+      const total = builderStore.finalTotal;
       return {
         ...form,
+        validUntil: form.dueDate,
+        items: builderStore.computedLineItems.map((item: any) => ({
+          ...item,
+          quantity: item.qty
+        })),
+        invoiceColumns: builderStore.invoiceColumns,
+        discount: builderStore.calculatedDiscount,
+        taxRate: builderStore.globalTax,
+        discountType: builderStore.discountType,
+        globalDiscount: builderStore.globalDiscount,
         subtotal,
         taxTotal,
         total,
       };
+    });
+
+    const previewDocumentType = computed(() => {
+      return form.documentType.toLowerCase() as 'invoice' | 'quotation';
     });
 
     const applyCustomer = (id: any) => {
@@ -1057,7 +1020,7 @@ export default defineComponent({
         await generatePDF(
           computedInvoice.value as Record<string, unknown>,
           form.template || "TemplateMinimal",
-          "invoice",
+          form.documentType.toLowerCase() as "invoice" | "quotation",
           `${form.invoiceNumber}.pdf`,
         );
       } catch (e: any) {
@@ -1099,16 +1062,19 @@ export default defineComponent({
         form.bank = { ...form.bank, ...data.bank };
       }
 
-      form.items = data.items.map((item, index) => ({
+      builderStore.lineItems = data.items.map((item: any, index: number) => ({
         id: Date.now().toString() + index,
         name: item.name,
-        quantity: item.quantity,
+        qty: item.quantity,
         price: item.price,
-        taxRate: data.taxRate ?? settingsStore.app.taxRate,
+        customData: {}
       }));
+      
+      builderStore.globalTax = data.taxRate ?? settingsStore.app.taxRate;
 
       if (data.discount) {
-        form.discount = data.discount;
+        builderStore.globalDiscount = data.discount;
+        builderStore.discountType = 'flat';
       }
     };
 
@@ -1125,12 +1091,9 @@ export default defineComponent({
       isEdit,
       form,
       customerStore,
-      addItem,
-      removeItem,
-      duplicateItem,
       computedInvoice,
+      previewDocumentType,
       saveInvoice,
-      globalTaxRate,
       applyCustomer,
       applyProfile,
       downloadPDF,

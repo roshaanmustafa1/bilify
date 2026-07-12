@@ -104,20 +104,54 @@ function renderMinimal(data: Record<string, unknown>, type: string): string {
       ? `<h2 class="text-2xl font-bold text-primary text-right">${esc(sender.name)}</h2>`
       : `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><path d="M50 5L90 25V75L50 95L10 75V25L50 5Z" stroke="#4A154B" stroke-width="3"/><path d="M50 15L80 30V70L50 85L20 70V30L50 15Z" stroke="#1a2b6d" stroke-width="4"/></svg>`
 
+  const invoiceColumns = (data.invoiceColumns as Record<string, any>[]) || [
+    { id: 'name', label: 'Items Detail' },
+    { id: 'qty', label: 'Quantity' },
+    { id: 'price', label: 'Rate' },
+    { id: 'rowTotal', label: 'Amount' }
+  ]
+
+  const theadHtml = invoiceColumns.map((col, idx) => {
+    const isLast = idx === invoiceColumns.length - 1
+    const borderStyle = isLast ? '' : 'style="border-right:1px solid rgba(255,255,255,0.2)"'
+    
+    let align = 'text-center'
+    let width = ''
+    if (col.id === 'name') { align = 'text-left'; width = 'w-full' }
+    else if (col.id === 'qty') width = 'whitespace-nowrap px-4'
+    else if (col.id === 'price') width = 'whitespace-nowrap px-4'
+    else if (col.id === 'rowTotal') width = 'whitespace-nowrap px-4'
+    else width = 'whitespace-nowrap px-4'
+
+    return `<th class="py-3 px-4 font-normal text-sm ${align} ${width}" ${borderStyle}>${esc(col.label)}</th>`
+  }).join('')
+
   const itemRows = items.map((item, i) => {
-    const qty   = Number(item.quantity) || 0
-    const price = Number(item.price)    || 0
-    return `<tr class="${i % 2 === 0 ? 'bg-background' : 'bg-muted/30'}">
-      <td class="py-4 px-4">
-        <div class="flex">
-          <span class="text-muted-foreground mr-2">${String(i + 1).padStart(2, '0')}.</span>
-          <div><span class="text-foreground">${esc(item.name)}</span>${item.description ? `<div class="text-muted-foreground text-xs mt-1">${esc(item.description)}</div>` : ''}</div>
-        </div>
-      </td>
-      <td class="py-4 px-4 text-center text-foreground">${String(qty).padStart(2, '0')}</td>
-      <td class="py-4 px-4 text-center text-foreground">${fmt(price, currency)}</td>
-      <td class="py-4 px-4 text-center text-foreground">${fmt(qty * price, currency)}</td>
-    </tr>`
+    const tds = invoiceColumns.map((col) => {
+      let align = 'text-center'
+      if (col.id === 'name') align = 'text-left'
+
+      let content = ''
+      if (col.id === 'name') {
+        content = `<div class="flex"><span class="text-muted-foreground mr-2">${String(i + 1).padStart(2, '0')}.</span><div><span class="text-foreground">${esc(item.name)}</span>${item.description ? `<div class="text-muted-foreground text-xs mt-1">${esc(item.description)}</div>` : ''}</div></div>`
+      } else if (col.id === 'qty') {
+        content = String(Number(item.quantity) || 0).padStart(2, '0')
+      } else if (col.id === 'price') {
+        content = fmt(Number(item.price) || 0, currency)
+      } else if (col.id === 'rowTotal') {
+        content = fmt((Number(item.quantity) || 0) * (Number(item.price) || 0), currency)
+      } else {
+        if (col.type === 'formula') {
+           content = fmt(Number((item as any)[col.id]) || 0, currency)
+        } else {
+           content = esc((item as any).customData?.[col.id] || '')
+        }
+      }
+
+      return `<td class="py-4 px-4 text-foreground ${align}">${content}</td>`
+    }).join('')
+
+    return `<tr class="${i % 2 === 0 ? 'bg-background' : 'bg-muted/30'}">${tds}</tr>`
   }).join('')
 
   const termsLines = String(data.terms || '').split('\n')
@@ -157,18 +191,15 @@ function renderMinimal(data: Record<string, unknown>, type: string): string {
           ${customer.email   ? `<div><span class="font-bold">Email :</span> ${esc(customer.email)}</div>` : ''}
           ${customer.phone   ? `<div><span class="font-bold">Phone :</span> ${esc(customer.phone)}</div>` : ''}
           ${data.projectName ? `<div><span class="font-bold">Project Name :</span> ${esc(data.projectName)}</div>` : ''}
-          ${expiryDate       ? `<div><span class="font-bold">Expiry Date :</span> ${expiryDate}</div>` : ''}
+          ${expiryDate       ? `<div><span class="font-bold">${expiryLabel}</span> ${expiryDate}</div>` : ''}
         </div>
       </div>
     </div>
     <div class="mb-12 border-b border-border" style="overflow:visible">
-      <table class="w-full text-left border-collapse" style="table-layout:fixed;min-width:500px;">
+      <table class="w-full text-left border-collapse" style="min-width:500px;">
         <thead>
           <tr style="background:linear-gradient(to right,#29855b,#144b33);color:white;">
-            <th class="py-3 px-4 font-normal text-sm w-[50%]" style="border-right:1px solid rgba(255,255,255,0.2)">Items Detail</th>
-            <th class="py-3 px-4 font-normal text-sm text-center w-[15%]" style="border-right:1px solid rgba(255,255,255,0.2)">Quantity</th>
-            <th class="py-3 px-4 font-normal text-sm text-center w-[15%]" style="border-right:1px solid rgba(255,255,255,0.2)">Rate</th>
-            <th class="py-3 px-4 font-normal text-sm text-center w-[20%]">Amount</th>
+            ${theadHtml}
           </tr>
         </thead>
         <tbody>${itemRows}</tbody>
@@ -217,18 +248,57 @@ function renderCorporate(data: Record<string, unknown>, type: string): string {
     ? `<img src="${esc(sender.logo)}" alt="Logo" class="max-w-full max-h-full object-contain" />`
     : `<div class="text-primary font-bold text-xs text-center">${esc(sender.name)}</div>`
 
+  const invoiceColumns = (data.invoiceColumns as Record<string, any>[]) || [
+    { id: 'name', label: 'Description' },
+    { id: 'qty', label: 'Qty' },
+    { id: 'price', label: 'Unit Price' },
+    { id: 'rowTotal', label: 'Total' }
+  ]
+
+  const theadHtml = invoiceColumns.map((col, idx) => {
+    const isLast = idx === invoiceColumns.length - 1
+    const borderStyle = isLast ? 'border-b border-border' : 'border-b border-r border-border'
+    
+    let align = 'text-center'
+    let width = ''
+    if (col.id === 'name') { align = 'text-left'; width = 'w-full' }
+    else if (col.id === 'qty') width = 'whitespace-nowrap px-4'
+    else if (col.id === 'price') width = 'whitespace-nowrap px-4'
+    else if (col.id === 'rowTotal') width = 'whitespace-nowrap px-4'
+    else width = 'whitespace-nowrap px-4'
+
+    return `<th class="py-3 px-4 font-bold text-xs uppercase tracking-wider text-foreground ${align} ${width} ${borderStyle}">${esc(col.label)}</th>`
+  }).join('')
+
   const itemRows = items.map((item) => {
-    const qty   = Number(item.quantity) || 0
-    const price = Number(item.price)    || 0
-    return `<tr class="border-b border-border">
-      <td class="py-3 px-4 border-r border-border">
-        <div class="font-semibold text-foreground">${esc(item.name)}</div>
-        ${item.description ? `<div class="text-muted-foreground text-xs mt-1">${esc(item.description)}</div>` : ''}
-      </td>
-      <td class="py-3 px-4 text-center border-r border-border">${qty}</td>
-      <td class="py-3 px-4 text-center border-r border-border">${fmt(price, currency)}</td>
-      <td class="py-3 px-4 text-center font-medium">${fmt(qty * price, currency)}</td>
-    </tr>`
+    const tds = invoiceColumns.map((col, idx) => {
+      const isLast = idx === invoiceColumns.length - 1
+      const borderStyle = isLast ? '' : 'border-r border-border'
+      
+      let align = 'text-center'
+      if (col.id === 'name') align = 'text-left'
+
+      let content = ''
+      if (col.id === 'name') {
+        content = `<div class="font-semibold text-foreground">${esc(item.name)}</div>${item.description ? `<div class="text-muted-foreground text-xs mt-1">${esc(item.description)}</div>` : ''}`
+      } else if (col.id === 'qty') {
+        content = String(Number(item.quantity) || 0)
+      } else if (col.id === 'price') {
+        content = fmt(Number(item.price) || 0, currency)
+      } else if (col.id === 'rowTotal') {
+        content = `<span class="font-medium">${fmt((Number(item.quantity) || 0) * (Number(item.price) || 0), currency)}</span>`
+      } else {
+        if (col.type === 'formula') {
+           content = fmt(Number((item as any)[col.id]) || 0, currency)
+        } else {
+           content = esc((item as any).customData?.[col.id] || '')
+        }
+      }
+
+      return `<td class="py-3 px-4 ${align} ${borderStyle}">${content}</td>`
+    }).join('')
+
+    return `<tr class="border-b border-border">${tds}</tr>`
   }).join('')
 
   const termsLines = String(data.terms || '').split('\n').map((l) => `<div>${esc(l)}</div>`).join('')
@@ -266,18 +336,15 @@ function renderCorporate(data: Record<string, unknown>, type: string): string {
             ${customer.email   ? `<div><span class="font-bold text-foreground">Email: </span>${esc(customer.email)}</div>` : ''}
             ${customer.phone   ? `<div><span class="font-bold text-foreground">Phone: </span>${esc(customer.phone)}</div>` : ''}
             ${data.projectName ? `<div class="mt-2 pt-2 border-t border-border border-dashed"><span class="font-bold text-foreground">Project: </span>${esc(data.projectName)}</div>` : ''}
-            ${expiryDate       ? `<div><span class="font-bold text-foreground">Expiry Date: </span>${expiryDate}</div>` : ''}
+            ${expiryDate       ? `<div><span class="font-bold text-foreground">${expiryLabel} </span>${expiryDate}</div>` : ''}
           </div>
         </div>
       </div>
       <div class="mb-10" style="overflow:visible">
-        <table class="w-full text-left border-collapse border border-border" style="table-layout:fixed;min-width:500px;">
+        <table class="w-full text-left border-collapse border border-border" style="min-width:500px;">
           <thead>
             <tr class="bg-muted">
-              <th class="py-3 px-4 font-bold text-xs uppercase tracking-wider border-b border-r border-border text-foreground w-[50%]">Description</th>
-              <th class="py-3 px-4 font-bold text-xs uppercase tracking-wider border-b border-r border-border text-foreground text-center w-[15%]">Qty</th>
-              <th class="py-3 px-4 font-bold text-xs uppercase tracking-wider border-b border-r border-border text-foreground text-center w-[15%]">Unit Price</th>
-              <th class="py-3 px-4 font-bold text-xs uppercase tracking-wider border-b border-border text-foreground text-center w-[20%]">Total</th>
+              ${theadHtml}
             </tr>
           </thead>
           <tbody>${itemRows}</tbody>
@@ -331,15 +398,58 @@ function renderCreative(data: Record<string, unknown>, type: string): string {
     ? `<img src="${esc(sender.logo)}" alt="Logo" class="max-w-full max-h-full object-contain" />`
     : `<div class="text-primary font-bold text-xs text-center">${esc(sender.name)}</div>`
 
+  const invoiceColumns = (data.invoiceColumns as Record<string, any>[]) || [
+    { id: 'name', label: 'Description' },
+    { id: 'qty', label: 'Qty' },
+    { id: 'price', label: 'Price' },
+    { id: 'rowTotal', label: 'Total' }
+  ]
+
+  const theadHtml = invoiceColumns.map((col, idx) => {
+    let align = 'text-center'
+    let width = ''
+    let colorClass = 'text-muted-foreground'
+    if (col.id === 'name') { align = 'text-left'; width = 'w-full' }
+    else if (col.id === 'qty') width = 'whitespace-nowrap px-4'
+    else if (col.id === 'price') { align = 'text-right'; width = 'whitespace-nowrap px-4' }
+    else if (col.id === 'rowTotal') { align = 'text-right'; width = 'whitespace-nowrap px-4'; colorClass = 'text-primary' }
+    else { align = 'text-right'; width = 'whitespace-nowrap px-4' }
+
+    return `<th class="py-3 ${colorClass} font-bold text-xs uppercase tracking-wider ${align} ${width}">${esc(col.label)}</th>`
+  }).join('')
+
   const itemRows = items.map((item) => {
-    const qty   = Number(item.quantity) || 0
-    const price = Number(item.price)    || 0
-    return `<tr class="border-b border-border/50">
-      <td class="py-4 pr-4"><div class="font-bold text-foreground">${esc(item.name)}</div>${item.description ? `<div class="text-muted-foreground text-xs mt-1">${esc(item.description)}</div>` : ''}</td>
-      <td class="py-4 text-center font-medium">${qty}</td>
-      <td class="py-4 text-right text-muted-foreground">${fmt(price, currency)}</td>
-      <td class="py-4 text-right font-bold text-foreground">${fmt(qty * price, currency)}</td>
-    </tr>`
+    const tds = invoiceColumns.map((col, idx) => {
+      let align = 'text-center'
+      if (col.id === 'name') align = 'text-left'
+      else if (col.id === 'price' || col.id === 'rowTotal' || col.isCustom) align = 'text-right'
+
+      let content = ''
+      let extraClass = ''
+      if (col.id === 'name') {
+        content = `<div class="font-bold text-foreground">${esc(item.name)}</div>${item.description ? `<div class="text-muted-foreground text-xs mt-1">${esc(item.description)}</div>` : ''}`
+      } else if (col.id === 'qty') {
+        extraClass = 'font-medium'
+        content = String(Number(item.quantity) || 0)
+      } else if (col.id === 'price') {
+        extraClass = 'text-muted-foreground'
+        content = fmt(Number(item.price) || 0, currency)
+      } else if (col.id === 'rowTotal') {
+        extraClass = 'font-bold text-foreground'
+        content = fmt((Number(item.quantity) || 0) * (Number(item.price) || 0), currency)
+      } else {
+        extraClass = 'text-muted-foreground'
+        if (col.type === 'formula') {
+           content = fmt(Number((item as any)[col.id]) || 0, currency)
+        } else {
+           content = esc((item as any).customData?.[col.id] || '')
+        }
+      }
+
+      return `<td class="py-4 ${align} ${extraClass}">${content}</td>`
+    }).join('')
+
+    return `<tr class="border-b border-border/50">${tds}</tr>`
   }).join('')
 
   return `<div class="bg-background font-sans max-w-[800px] mx-auto text-sm shadow-sm flex flex-row" style="min-height:800px;">
@@ -387,18 +497,15 @@ function renderCreative(data: Record<string, unknown>, type: string): string {
           </div>
           <div class="flex flex-col gap-2 items-end">
             ${data.projectName ? `<div><div class="text-foreground">Project :</div><div class="text-muted-foreground text-sm text-end">${esc(data.projectName)}</div></div>` : ''}
-            ${expiryDate       ? `<div><div class="text-foreground">Expiry Date :</div><div class="text-muted-foreground text-sm text-end">${expiryDate}</div></div>` : ''}
+            ${expiryDate       ? `<div><div class="text-foreground">${expiryLabel}</div><div class="text-muted-foreground text-sm text-end">${expiryDate}</div></div>` : ''}
           </div>
         </div>
       </div>
       <div class="mb-auto" style="overflow:visible">
-        <table class="w-full text-left border-collapse" style="table-layout:fixed;min-width:400px;">
+      <table class="w-full text-left border-collapse" style="min-width:400px;">
           <thead>
             <tr class="border-b-2 border-primary/20">
-              <th class="py-3 text-muted-foreground font-bold text-xs uppercase tracking-wider w-[50%]">Description</th>
-              <th class="py-3 text-muted-foreground font-bold text-xs uppercase tracking-wider text-center w-[15%]">Qty</th>
-              <th class="py-3 text-muted-foreground font-bold text-xs uppercase tracking-wider text-right w-[15%]">Price</th>
-              <th class="py-3 text-primary font-bold text-xs uppercase tracking-wider text-right w-[20%]">Total</th>
+              ${theadHtml}
             </tr>
           </thead>
           <tbody>${itemRows}</tbody>
@@ -436,15 +543,59 @@ function renderElegant(data: Record<string, unknown>, type: string): string {
 
   const logoHtml = sender.logo ? `<div class="mb-2"><img src="${esc(sender.logo)}" alt="Logo" style="height:auto;object-fit:contain;max-width:168px;" /></div>` : ''
 
+  const invoiceColumns = (data.invoiceColumns as Record<string, any>[]) || [
+    { id: 'name', label: 'Item Description' },
+    { id: 'qty', label: 'Qty' },
+    { id: 'price', label: 'Rate' },
+    { id: 'rowTotal', label: 'Amount' }
+  ]
+
+  const theadHtml = invoiceColumns.map((col, idx) => {
+    let align = 'text-center'
+    let width = ''
+    let colorClass = 'text-muted-foreground'
+    if (col.id === 'name') { align = 'text-left'; width = 'w-full' }
+    else if (col.id === 'qty') width = 'whitespace-nowrap px-4'
+    else if (col.id === 'price') { align = 'text-right'; width = 'whitespace-nowrap px-4' }
+    else if (col.id === 'rowTotal') { align = 'text-right'; width = 'whitespace-nowrap pl-4'; colorClass = 'text-foreground' }
+    else { align = 'text-right'; width = 'whitespace-nowrap px-4' }
+
+    return `<th class="py-3 text-xs font-semibold uppercase tracking-widest ${colorClass} border-b border-border/40 ${align} ${width}">${esc(col.label)}</th>`
+  }).join('')
+
   const itemRows = items.map((item) => {
-    const qty   = Number(item.quantity) || 0
-    const price = Number(item.price)    || 0
-    return `<tr>
-      <td class="py-5 border-b border-border/20 pr-4"><div class="font-medium text-foreground">${esc(item.name)}</div>${item.description ? `<div class="text-muted-foreground font-light text-xs mt-1">${esc(item.description)}</div>` : ''}</td>
-      <td class="py-5 border-b border-border/20 text-center font-light">${qty}</td>
-      <td class="py-5 border-b border-border/20 text-right font-light text-muted-foreground">${fmt(price, currency)}</td>
-      <td class="py-5 border-b border-border/20 text-right font-medium text-foreground">${fmt(qty * price, currency)}</td>
-    </tr>`
+    const tds = invoiceColumns.map((col, idx) => {
+      let align = 'text-center'
+      if (col.id === 'name') align = 'text-left'
+      else if (col.id === 'price' || col.id === 'rowTotal' || col.isCustom) align = 'text-right'
+
+      let content = ''
+      let extraClass = ''
+      if (col.id === 'name') {
+        extraClass = 'pr-4'
+        content = `<div class="font-medium text-foreground">${esc(item.name)}</div>${item.description ? `<div class="text-muted-foreground font-light text-xs mt-1">${esc(item.description)}</div>` : ''}`
+      } else if (col.id === 'qty') {
+        extraClass = 'font-light'
+        content = String(Number(item.quantity) || 0)
+      } else if (col.id === 'price') {
+        extraClass = 'font-light text-muted-foreground'
+        content = fmt(Number(item.price) || 0, currency)
+      } else if (col.id === 'rowTotal') {
+        extraClass = 'font-medium text-foreground'
+        content = fmt((Number(item.quantity) || 0) * (Number(item.price) || 0), currency)
+      } else {
+        extraClass = 'font-light text-muted-foreground'
+        if (col.type === 'formula') {
+           content = fmt(Number((item as any)[col.id]) || 0, currency)
+        } else {
+           content = esc((item as any).customData?.[col.id] || '')
+        }
+      }
+
+      return `<td class="py-5 border-b border-border/20 ${align} ${extraClass}">${content}</td>`
+    }).join('')
+
+    return `<tr>${tds}</tr>`
   }).join('')
 
   return `<div class="bg-background font-sans max-w-[800px] mx-auto p-6 text-sm text-foreground">
@@ -475,18 +626,15 @@ function renderElegant(data: Record<string, unknown>, type: string): string {
         <div class="text-sm font-light space-y-1">
           <div class="flex justify-end gap-4"><span class="text-muted-foreground">${numLabel}</span><span class="font-medium text-foreground w-24">${docNum}</span></div>
           <div class="flex justify-end gap-4"><span class="text-muted-foreground">Date :</span><span class="font-medium text-foreground w-24">${docDate}</span></div>
-          ${expiryDate ? `<div class="flex justify-end gap-4"><span class="text-muted-foreground">Due Date :</span><span class="font-medium text-foreground w-24">${expiryDate}</span></div>` : ''}
+          ${expiryDate ? `<div class="flex justify-end gap-4"><span class="text-muted-foreground">${expiryLabel}</span><span class="font-medium text-foreground w-24">${expiryDate}</span></div>` : ''}
         </div>
       </div>
     </div>
     <div class="mb-12" style="overflow:visible">
-      <table class="w-full text-left border-collapse" style="table-layout:fixed;min-width:500px;">
+      <table class="w-full text-left border-collapse" style="min-width:500px;">
         <thead>
           <tr>
-            <th class="py-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40 w-[50%]">Item Description</th>
-            <th class="py-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40 text-center w-[15%]">Qty</th>
-            <th class="py-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground border-b border-border/40 text-right w-[15%]">Rate</th>
-            <th class="py-3 text-xs font-semibold uppercase tracking-widest text-foreground border-b border-border/40 text-right w-[20%]">Amount</th>
+            ${theadHtml}
           </tr>
         </thead>
         <tbody>${itemRows}</tbody>

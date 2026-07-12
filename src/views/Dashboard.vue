@@ -14,17 +14,10 @@
       </div>
       <div class="flex gap-3 flex-wrap">
         <Button
-          variant="outline"
           class="w-full md:w-auto font-medium shadow-sm hover:shadow-md transition-shadow"
-          @click="$router.push('/app/quotations/create')"
-        >
-          <Icon icon="lucide:plus" class="mr-2 h-4 w-4" /> New Quotation
-        </Button>
-        <Button
-          class="w-full md:w-auto font-medium"
           @click="$router.push('/app/invoices/create')"
         >
-          <Icon icon="lucide:file-text" class="mr-2 h-4 w-4" /> New Invoice
+          <Icon icon="lucide:file-text" class="mr-2 h-4 w-4" /> New Document
         </Button>
       </div>
     </div>
@@ -35,14 +28,14 @@
     >
       <StatCard
         title="Total Invoices"
-        :value="invoiceStore.totalInvoices"
+        :value="invoiceStore.invoices.filter(i => i.documentType !== 'Quotation').length"
         percentage="+12.5%"
         trendText="84 new this month"
         class="bg-gradient-to-r from-[#29855b] to-[#144b33] text-white"
       />
       <StatCard
         title="Total Quotations"
-        :value="quotationStore.totalQuotations"
+        :value="invoiceStore.invoices.filter(i => i.documentType === 'Quotation').length"
         percentage="+8.2%"
         trendText="22 pending review"
         class="bg-gradient-to-r from-[#29855b] to-[#144b33] text-white"
@@ -374,7 +367,7 @@ import { defineComponent, onMounted } from "vue";
 import { Icon } from "@iconify/vue";
 import { useRouter } from "vue-router";
 import { useInvoiceStore } from "../store/invoice";
-import { useQuotationStore } from "../store/quotation";
+
 import { useCustomerStore } from "../store/customer";
 import { useSettingsStore } from "../store/settings";
 import { useProfileStore } from "../store/profile";
@@ -403,7 +396,7 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const invoiceStore = useInvoiceStore();
-    const quotationStore = useQuotationStore();
+
     const customerStore = useCustomerStore();
     const settingsStore = useSettingsStore();
     const profileStore = useProfileStore();
@@ -412,7 +405,7 @@ export default defineComponent({
       customerStore.fetchCustomers();
       profileStore.fetchProfiles();
       invoiceStore.fetchInvoices();
-      quotationStore.fetchQuotations();
+
     });
 
     const formatCurrency = (value: number) => {
@@ -433,7 +426,7 @@ export default defineComponent({
 
     return {
       invoiceStore,
-      quotationStore,
+
       customerStore,
       settingsStore,
       profileStore,

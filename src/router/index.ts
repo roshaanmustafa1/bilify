@@ -15,8 +15,6 @@ const routes: Array<RouteRecordRaw> = [
       { path: '', name: 'Dashboard', component: () => import('../views/Dashboard.vue') },
       { path: 'invoices', name: 'Invoices', component: () => import('../views/Invoices.vue') },
       { path: 'invoices/create', name: 'CreateInvoice', component: () => import('../views/CreateInvoice.vue') },
-      { path: 'quotations', name: 'Quotations', component: () => import('../views/Quotations.vue') },
-      { path: 'quotations/create', name: 'CreateQuotation', component: () => import('../views/CreateQuotation.vue') },
       { path: 'customers', name: 'Customers', component: () => import('../views/Customers.vue') },
       { path: 'profiles', name: 'CompanyProfiles', component: () => import('../views/CompanyProfiles.vue') }
     ]
