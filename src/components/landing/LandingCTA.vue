@@ -29,7 +29,7 @@
           </div>
         </div>
         
-        <router-link to="/auth/register" class="bg-emerald-500 text-white px-12 py-5 rounded-full font-black text-xl hover:bg-emerald-400 transition-all duration-300 transform hover:scale-105 shadow-[0_0_50px_-10px_rgba(16,185,129,0.6)]">
+        <router-link to="/auth/register" class="bg-gradient-to-r from-[#29855b] to-[#144b33] text-white px-12 py-5 rounded-full font-black text-xl hover:from-[#237550] hover:to-[#103a27] transition-all duration-300 transform hover:scale-105 shadow-[0_0_50px_-10px_rgba(41,133,91,0.6)]">
           Create Free Account
         </router-link>
         <p class="mt-6 text-slate-400 text-sm font-medium">No credit card required. 14-day free trial.</p>

@@ -1,10 +1,10 @@
 <template>
-  <div ref="ctnDom" class="aurora-container absolute inset-0 z-0 pointer-events-none" />
+  <div ref="ctnDom" class="aurora-container" />
 </template>
 
-<script lang="ts">
-import { Color, Mesh, Program, Renderer, Triangle } from 'ogl';
-import { defineComponent, PropType } from 'vue';
+<script setup lang="ts">
+import { Color, Mesh, Program, Renderer, Triangle } from "ogl";
+import { onMounted, onUnmounted, ref } from "vue";
 
 const VERT = `#version 300 es
 in vec2 position;
@@ -73,18 +73,18 @@ struct ColorStop {
   float position;
 };
 
-#define COLOR_RAMP(colors, factor, finalColor) {              \\
-  int index = 0;                                              \\
-  for (int i = 0; i < 2; i++) {                               \\
-     ColorStop currentColor = colors[i];                    \\
-     bool isInBetween = currentColor.position <= factor;    \\
-     index = int(mix(float(index), float(i), float(isInBetween))); \\
-  }                                                         \\
-  ColorStop currentColor = colors[index];                   \\
-  ColorStop nextColor = colors[index + 1];                  \\
-  float range = nextColor.position - currentColor.position; \\
-  float lerpFactor = (factor - currentColor.position) / range; \\
-  finalColor = mix(currentColor.color, nextColor.color, lerpFactor); \\
+#define COLOR_RAMP(colors, factor, finalColor) {              \
+  int index = 0;                                            \
+  for (int i = 0; i < 2; i++) {                               \
+     ColorStop currentColor = colors[i];                    \
+     bool isInBetween = currentColor.position <= factor;    \
+     index = int(mix(float(index), float(i), float(isInBetween))); \
+  }                                                         \
+  ColorStop currentColor = colors[index];                   \
+  ColorStop nextColor = colors[index + 1];                  \
+  float range = nextColor.position - currentColor.position; \
+  float lerpFactor = (factor - currentColor.position) / range; \
+  finalColor = mix(currentColor.color, nextColor.color, lerpFactor); \
 }
 
 void main() {
@@ -112,111 +112,116 @@ void main() {
 }
 `;
 
-export default defineComponent({
-  name: 'Aurora',
-  props: {
-    colorStops: { type: Array as PropType<string[]>, default: () => ['#171D22', '#7cff67', '#171D22'] },
-    amplitude: { type: Number, default: 1.0 },
-    blend: { type: Number, default: 0.5 },
-    time: { type: Number, default: undefined },
-    speed: { type: Number, default: 1.0 }
-  },
-  data() {
-    return {
-      animateId: 0,
-      renderer: null as InstanceType<typeof Renderer> | null,
-      program: null as InstanceType<typeof Program> | null,
-      resizeHandler: null as (() => void) | null,
-    };
-  },
-  mounted() {
-    const ctn = this.$refs.ctnDom as HTMLDivElement;
-    if (!ctn) return;
+interface AuroraProps {
+  colorStops?: string[];
+  amplitude?: number;
+  blend?: number;
+  time?: number;
+  speed?: number;
+}
 
-    this.renderer = new Renderer({
-      alpha: true,
-      premultipliedAlpha: true,
-      antialias: true
-    });
+const props = withDefaults(defineProps<AuroraProps>(), {
+  colorStops: () => ["#171D22", "#7cff67", "#171D22"],
+  amplitude: 1.0,
+  blend: 0.7,
+  speed: 1.0,
+});
 
-    const gl = this.renderer.gl;
-    gl.clearColor(0, 0, 0, 0);
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-    gl.canvas.style.backgroundColor = 'transparent';
+const ctnDom = ref<HTMLDivElement | null>(null);
 
-    this.resizeHandler = () => {
-      if (!ctn || !this.renderer) return;
-      const width = ctn.offsetWidth;
-      const height = ctn.offsetHeight;
-      this.renderer.setSize(width, height);
-      if (this.program) {
-        this.program.uniforms.uResolution.value = [width, height];
-      }
-    };
+let animateId = 0;
+let renderer: InstanceType<typeof Renderer> | null = null;
+let program: InstanceType<typeof Program> | null = null;
+let resizeHandler: (() => void) | null = null;
 
-    window.addEventListener('resize', this.resizeHandler);
+onMounted(() => {
+  const ctn = ctnDom.value;
+  if (!ctn) return;
 
-    const geometry = new Triangle(gl);
-    if (geometry.attributes.uv) {
-      delete geometry.attributes.uv;
+  renderer = new Renderer({
+    alpha: true,
+    premultipliedAlpha: true,
+    antialias: true,
+  });
+
+  const gl = renderer.gl;
+  gl.clearColor(0, 0, 0, 0);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+  gl.canvas.style.backgroundColor = "transparent";
+
+  resizeHandler = () => {
+    if (!ctn || !renderer) return;
+    const width = ctn.offsetWidth;
+    const height = ctn.offsetHeight;
+    renderer.setSize(width, height);
+    if (program) {
+      program.uniforms.uResolution.value = [width, height];
     }
+  };
 
-    const colorStopsArray = this.colorStops.map((hex: string) => {
-      const c = new Color(hex);
-      return [c.r, c.g, c.b];
-    });
+  window.addEventListener("resize", resizeHandler);
 
-    this.program = new Program(gl, {
-      vertex: VERT,
-      fragment: FRAG,
-      uniforms: {
-        uTime: { value: 0 },
-        uAmplitude: { value: this.amplitude },
-        uColorStops: { value: colorStopsArray },
-        uResolution: { value: [ctn.offsetWidth, ctn.offsetHeight] },
-        uBlend: { value: this.blend }
-      }
-    });
+  const geometry = new Triangle(gl);
+  if (geometry.attributes.uv) {
+    delete geometry.attributes.uv;
+  }
 
-    const mesh = new Mesh(gl, { geometry, program: this.program });
-    ctn.appendChild(gl.canvas);
+  const colorStopsArray = props.colorStops.map((hex: string) => {
+    const c = new Color(hex);
+    return [c.r, c.g, c.b];
+  });
 
-    const update = (t: number) => {
-      this.animateId = requestAnimationFrame(update);
-      const time = this.time !== undefined ? this.time : t * 0.01;
-      const speed = this.speed ?? 1.0;
+  program = new Program(gl, {
+    vertex: VERT,
+    fragment: FRAG,
+    uniforms: {
+      uTime: { value: 0 },
+      uAmplitude: { value: props.amplitude },
+      uColorStops: { value: colorStopsArray },
+      uResolution: { value: [ctn.offsetWidth, ctn.offsetHeight] },
+      uBlend: { value: props.blend },
+    },
+  });
 
-      if (this.program && this.renderer) {
-        this.program.uniforms.uTime.value = time * speed * 0.1;
-        this.program.uniforms.uAmplitude.value = this.amplitude ?? 1.0;
-        this.program.uniforms.uBlend.value = this.blend ?? 0.5;
-        this.program.uniforms.uColorStops.value = (this.colorStops ?? ['#171D22', '#7cff67', '#171D22']).map(
-          (hex: string) => {
-            const c = new Color(hex);
-            return [c.r, c.g, c.b];
-          }
-        );
-        this.renderer.render({ scene: mesh });
-      }
-    };
+  const mesh = new Mesh(gl, { geometry, program });
+  ctn.appendChild(gl.canvas);
 
-    this.animateId = requestAnimationFrame(update);
-    this.resizeHandler();
-  },
-  beforeUnmount() {
-    cancelAnimationFrame(this.animateId);
-    if (this.resizeHandler) {
-      window.removeEventListener('resize', this.resizeHandler);
+  const update = (t: number) => {
+    animateId = requestAnimationFrame(update);
+    const time = props.time ?? t * 0.01;
+    const speed = props.speed ?? 1.0;
+
+    if (program && renderer) {
+      program.uniforms.uTime.value = time * speed * 0.1;
+      program.uniforms.uAmplitude.value = props.amplitude ?? 1.0;
+      program.uniforms.uBlend.value = props.blend ?? 0.5;
+      program.uniforms.uColorStops.value = (
+        props.colorStops ?? ["#171D22", "#7cff67", "#171D22"]
+      ).map((hex: string) => {
+        const c = new Color(hex);
+        return [c.r, c.g, c.b];
+      });
+      renderer.render({ scene: mesh });
     }
-    if (this.renderer) {
-      const ctn = this.$refs.ctnDom as HTMLDivElement;
-      const canvas = this.renderer.gl.canvas;
-      if (ctn && canvas.parentNode === ctn) {
-        ctn.removeChild(canvas);
-      }
-      this.renderer.gl.getExtension('WEBGL_lose_context')?.loseContext();
+  };
+
+  animateId = requestAnimationFrame(update);
+  resizeHandler();
+});
+
+onUnmounted(() => {
+  cancelAnimationFrame(animateId);
+  if (resizeHandler) {
+    window.removeEventListener("resize", resizeHandler);
+  }
+  if (renderer) {
+    const ctn = ctnDom.value;
+    const canvas = renderer.gl.canvas;
+    if (ctn && canvas.parentNode === ctn) {
+      ctn.removeChild(canvas);
     }
+    renderer.gl.getExtension("WEBGL_lose_context")?.loseContext();
   }
 });
 </script>
