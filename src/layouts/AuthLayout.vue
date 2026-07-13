@@ -88,45 +88,44 @@
               </div>
             </div>
 
-            <!-- Main White Card -->
             <div
               class="bg-[#fcfdfd] rounded-[1.5rem] p-8 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.4)] w-[360px] relative z-10 border border-white/50"
             >
               <!-- Faint top-left icon -->
-              <div class="mb-10 text-gray-300">
-                <Icon icon="lucide:zap" class="w-6 h-6" />
+              <div class="mb-10 text-emerald-500/40">
+                <Icon icon="lucide:bot" class="w-6 h-6" />
               </div>
 
               <h3 class="text-3xl font-extrabold text-gray-900 tracking-tight">
-                12,347.23 $
+                45,231.00 $
               </h3>
               <p class="text-[12px] text-gray-400 font-medium mb-16">
-                Combined balance
+                Total Invoiced (This Month)
               </p>
 
               <div class="flex justify-between items-end mb-8">
                 <div>
                   <p class="text-[13px] font-bold text-gray-900 mb-0.5">
-                    Primary Card
+                    AI Quotations
                   </p>
                   <p
                     class="text-[11px] text-gray-500 font-medium tracking-wider"
                   >
-                    3495 **** **** 6917
+                    Win rate: 94%
                   </p>
                 </div>
-                <p class="text-[13px] font-bold text-gray-900">2,546.64$</p>
+                <p class="text-[13px] font-bold text-gray-900">142 Sent</p>
               </div>
 
               <div class="flex items-center justify-between pt-1">
                 <span
                   class="text-gray-300 font-extrabold italic tracking-widest text-xl"
-                  >VISA</span
+                  >BILIFY AI</span
                 >
                 <div
                   class="px-4 py-1.5 bg-[#f0f2f4] rounded-full text-[11px] font-bold text-gray-600 transition-colors hover:bg-gray-200 cursor-pointer"
                 >
-                  View All
+                  View Reports
                 </div>
               </div>
             </div>
