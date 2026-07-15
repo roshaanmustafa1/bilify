@@ -19,44 +19,26 @@
       <nav
         class="hidden md:flex items-center gap-8 text-sm font-semibold text-white/90"
       >
-        <a href="#features" class="hover:text-white transition-colors"
-          >Features</a
-        >
-        <a href="#pricing" class="hover:text-white transition-colors"
-          >Pricing</a
-        >
+        <a href="#home" class="hover:text-white transition-colors">Home</a>
+        <a href="#metrics" class="hover:text-white transition-colors">Metrics</a>
+        <a href="#features" class="hover:text-white transition-colors">Features</a>
+        <a href="#pricing" class="hover:text-white transition-colors">Pricing</a>
         <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
       </nav>
 
       <!-- Right Actions -->
-      <div class="flex items-center gap-5">
+      <div class="flex items-center gap-4">
         <router-link
           to="/auth/login"
-          class="text-white/80 hover:text-white transition-colors group"
-          title="Favorites"
-        >
-          <Icon
-            icon="lucide:heart"
-            class="w-5 h-5 fill-transparent group-hover:fill-white/20 transition-all"
-            stroke-width="2"
-          />
-        </router-link>
-        <router-link
-          to="/auth/login"
-          class="text-white/80 hover:text-white transition-colors group"
-          title="Cart"
-        >
-          <Icon
-            icon="lucide:shopping-bag"
-            class="w-5 h-5 fill-transparent group-hover:fill-white/20 transition-all"
-            stroke-width="2"
-          />
-        </router-link>
-        <router-link
-          to="/auth/login"
-          class="text-sm font-bold text-white hover:text-white/90 transition-colors ml-2"
+          class="text-sm font-bold text-white/90 hover:text-white transition-colors"
         >
           Log In
+        </router-link>
+        <router-link
+          to="/auth/register"
+          class="text-sm font-bold text-[#144b33] bg-white hover:bg-slate-50 px-5 py-2 rounded-full transition-colors shadow-sm"
+        >
+          Sign Up
         </router-link>
       </div>
     </header>

@@ -1,5 +1,5 @@
 <template>
-  <section class="py-0 bg-[#030a06] text-white relative">
+  <section id="pricing" class="py-0 bg-[#030a06] text-white relative">
     <!-- Subtle Background Glow -->
     <div
       class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-900/20 rounded-full blur-[120px] pointer-events-none"

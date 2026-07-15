@@ -1,5 +1,5 @@
 <template>
-  <section class="py-24 bg-slate-50 relative z-20">
+  <section id="faq" class="py-24 bg-slate-50 relative z-20">
     <div class="max-w-7xl mx-auto px-4">
       <!-- Header -->
       <div class="text-center mb-16">

@@ -1,5 +1,5 @@
 <template>
-  <section ref="sectionRef" class="py-20 bg-[#144b33] text-white relative overflow-hidden">
+  <section id="metrics" ref="sectionRef" class="py-20 bg-[#144b33] text-white relative overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 relative z-10">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
         

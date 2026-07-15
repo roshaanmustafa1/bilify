@@ -1,5 +1,6 @@
 <template>
   <section
+    id="home"
     class="relative w-full min-h-screen pt-32 pb-32 overflow-hidden bg-[#030a06] flex flex-col items-center justify-center font-sans text-white"
   >
     <Aurora
