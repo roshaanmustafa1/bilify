@@ -98,6 +98,13 @@ export const useInvoiceStore = defineStore('invoice', {
       if ('customerId' in dataToSave) { dataToSave.customer_id = dataToSave.customerId; delete dataToSave.customerId; }
       if ('taxTotal' in dataToSave) { dataToSave.tax_total = dataToSave.taxTotal; delete dataToSave.taxTotal; }
       if ('documentType' in dataToSave) { dataToSave.document_type = dataToSave.documentType; delete dataToSave.documentType; }
+      if ('validUntil' in dataToSave) {
+        if (!dataToSave.due_date && dataToSave.validUntil) {
+          dataToSave.due_date = dataToSave.validUntil;
+        }
+        delete dataToSave.validUntil;
+      }
+      delete dataToSave.valid_until;
       delete dataToSave.customer;
       delete dataToSave.company;
       delete dataToSave.bank;
@@ -146,6 +153,13 @@ export const useInvoiceStore = defineStore('invoice', {
       if ('customerId' in dataToUpdate) { dataToUpdate.customer_id = dataToUpdate.customerId; delete dataToUpdate.customerId; }
       if ('taxTotal' in dataToUpdate) { dataToUpdate.tax_total = dataToUpdate.taxTotal; delete dataToUpdate.taxTotal; }
       if ('documentType' in dataToUpdate) { dataToUpdate.document_type = dataToUpdate.documentType; delete dataToUpdate.documentType; }
+      if ('validUntil' in dataToUpdate) {
+        if (!dataToUpdate.due_date && dataToUpdate.validUntil) {
+          dataToUpdate.due_date = dataToUpdate.validUntil;
+        }
+        delete dataToUpdate.validUntil;
+      }
+      delete dataToUpdate.valid_until;
       delete dataToUpdate.customer;
       delete dataToUpdate.company;
       delete dataToUpdate.bank;

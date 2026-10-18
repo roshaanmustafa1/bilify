@@ -94,6 +94,7 @@ function renderMinimal(data: Record<string, unknown>, type: string): string {
   const docNum     = type === 'invoice' ? esc(data.invoiceNumber) : esc(data.quotationNumber)
   const docDate    = esc(data.date) || 'N/A'
   const expiryDate = type === 'invoice' ? esc(data.dueDate) : esc(data.validUntil)
+  const expiryLabel = type === 'invoice' ? 'Expiry Date :' : 'Valid Until :'
   const title      = type === 'invoice' ? 'INVOICE' : 'QUOTATION'
   const numLabel   = type === 'invoice' ? 'Invoice No #'   : 'Quotation No #'
   const dateLabel  = type === 'invoice' ? 'Invoice Date #' : 'Quotation Date #'
@@ -242,6 +243,7 @@ function renderCorporate(data: Record<string, unknown>, type: string): string {
   const docNum     = type === 'invoice' ? esc(data.invoiceNumber) : esc(data.quotationNumber)
   const docDate    = esc(data.date) || 'N/A'
   const expiryDate = type === 'invoice' ? esc(data.dueDate) : esc(data.validUntil)
+  const expiryLabel = type === 'invoice' ? 'Expiry Date:' : 'Valid Until:'
   const title      = type === 'invoice' ? 'INVOICE' : 'QUOTATION'
 
   const logoHtml = sender.logo
@@ -392,6 +394,7 @@ function renderCreative(data: Record<string, unknown>, type: string): string {
   const docNum     = type === 'invoice' ? esc(data.invoiceNumber) : esc(data.quotationNumber)
   const docDate    = esc(data.date) || 'N/A'
   const expiryDate = type === 'invoice' ? esc(data.dueDate) : esc(data.validUntil)
+  const expiryLabel = type === 'invoice' ? 'Expiry Date :' : 'Valid Until :'
   const title      = type === 'invoice' ? 'Invoice' : 'Quotation'
 
   const logoHtml = sender.logo
@@ -538,6 +541,7 @@ function renderElegant(data: Record<string, unknown>, type: string): string {
   const docNum     = type === 'invoice' ? esc(data.invoiceNumber) : esc(data.quotationNumber)
   const docDate    = esc(data.date) || 'N/A'
   const expiryDate = type === 'invoice' ? esc(data.dueDate) : esc(data.validUntil)
+  const expiryLabel = type === 'invoice' ? 'Due Date :' : 'Valid Until :'
   const title      = type === 'invoice' ? 'Invoice' : 'Quotation'
   const numLabel   = type === 'invoice' ? 'Invoice Number :' : 'Quotation Number :'
 

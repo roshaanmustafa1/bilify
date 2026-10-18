@@ -956,13 +956,16 @@ export default defineComponent({
       isSaving.value = true;
       try {
         if (isEdit.value) {
+          const payload = { ...computedInvoice.value } as any;
+          delete payload.validUntil;
           await invoiceStore.updateInvoice(
             form.id,
-            computedInvoice.value as any,
+            payload,
           );
         } else {
-          const payload = computedInvoice.value as any;
+          const payload = { ...computedInvoice.value } as any;
           delete payload.id;
+          delete payload.validUntil;
           await invoiceStore.addInvoice(payload);
         }
         router.push("/app/invoices");
@@ -996,8 +999,9 @@ export default defineComponent({
         if (!isEdit.value) {
           try {
             form.status = 'Draft';
-            const payload = computedInvoice.value as any;
+            const payload = { ...computedInvoice.value } as any;
             delete payload.id;
+            delete payload.validUntil;
             await invoiceStore.addInvoice(payload);
           } catch {
             // silently fail
@@ -1005,7 +1009,9 @@ export default defineComponent({
         } else if (isEdit.value && (form.status as any) !== 'Saved') {
           try {
             form.status = 'Draft';
-            await invoiceStore.updateInvoice(form.id, computedInvoice.value as any);
+            const payload = { ...computedInvoice.value } as any;
+            delete payload.validUntil;
+            await invoiceStore.updateInvoice(form.id, payload);
           } catch {
             // silently fail
           }
